@@ -1,149 +1,227 @@
 <template>
   <div id="app">
-    <Logo class="logo"></Logo>
-    <ul class="nav-ul">
-      <router-link tag="li" to="/home">首页</router-link>
-      <router-link tag="li" to="/download">下载</router-link>
-      <router-link tag="li" to="/information">信息</router-link>
-      <router-link tag="li" to="/mine">个人中心</router-link>
-      <router-link tag="li" to="/login">登录</router-link>
-      <router-link tag="li" to="/about">关于</router-link>
-      <li class="nav-headimg"><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1556729361862&di=fd31842f21f2b6d13a232d5ee67ca66f&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201810%2F01%2F20181001190318_wutsz.jpg" alt=""></li>
-    </ul>
+    <span v-if="isLogin">
+      <Logo class="logo"></Logo>
+      <ul class="nav-ul">
+        <router-link tag="li" to="/home">首页</router-link>
+        <router-link tag="li" to="/download">资源下载</router-link>
+        <router-link tag="li" to="/information">通知信息</router-link>
+        <router-link tag="li" to="/blog">学长课堂</router-link>
+        <router-link tag="li" to="/about">关于</router-link>
+
+        <!-- 这是一个浮动时间触发的模块 -->
+        <el-popover placement="top-start" width="300" title="个人信息" trigger="click" class="popover">
+          <li class="user-info user-text">用户名：{{userinfo.name}}</li>
+          <br>
+          <li class="user-info user-text">最近登录时间：{{ipinfo.time}}</li>
+          <br>
+          <li class="user-info user-text">最近登录地点：{{ipinfo.location}}</li>
+          <br>
+          <li class="user-info user-text">总登录次数：{{numOfLogin}}</li>
+          <br>
+          <li class="userinfo user-space" @click='goSpace'>个人中心</li>
+          <li class="user-info user-logout" @click="logout">注销</li>
+          <br>
+          <li class="user-info user-img" slot="reference">
+            <img :src="userinfo.head" alt="刷新" style="font-size:0.7em">
+          </li>
+        </el-popover>
+      </ul>
+    </span>
     <router-view/>
-    <div class="uptotop">
-      <a href="#">
-        <i class="el-icon-arrow-up"></i>
-      </a>
-    </div>
-    <footer>
-      <p>Copyright © 2018-2019 ERSHU. All rights reserved.</p>
-    </footer>
+    <span v-if="isLogin">
+      <div class="uptotop">
+        <a href="#">
+          <i class="el-icon-arrow-up"></i>
+        </a>
+      </div>
+      <footer>
+        <p>Copyright © 2018-2019 JC4U. All rights reserved.</p>
+      </footer>
+    </span>
   </div>
 </template>
 
 <script>
-import Logo from "@/components/logo"
+import Logo from "@/components/logo";
 
 export default {
-  name: 'App',
-  components:{
+  name: "App",
+  components: {
     Logo
+  },
+  data() {
+    return {
+      isLogin: false,
+      userinfo: {head:"http://iph.href.lu/80x80?text=%E9%BB%98%E8%AE%A4"},
+      ipinfo: {},
+      userid: "",
+      numOfLogin: 0,
+    };
+  },
+  methods: {
+    checkStaus() {
+      this.isLogin = this.$public.checkStaus();
+    },
+    //通过id获取用户信息
+    async getUserInfoById() {
+      let info = await this.$public.getUserInfoById(this.userid)
+      this.userinfo = info;
+    },
+    //通过id获取用户登录信息
+    async getUserIpInfoById() {
+      let ip = await this.$public.getUserIpInfoById(this.userid);
+      this.ipinfo = ip;
+    },
+    //获取登录次数
+    async getNumOfLoginById() {
+      //调用公共js中的API方法
+      let num = await this.$public.getNumOfLoginById(this.userid)
+      this.numOfLogin = num;
+    },
+    getUserId() {
+      //判断cookies是否还存在
+      if (this.$cookies.isKey("userid"))
+        this.userid = this.$cookies.get("userid");
+    },
+    //注销登录
+    logout(){
+      this.$confirm("确认注销登录吗？").then(
+          this.$public.logout
+      ).catch(_ => {});
+    },
+    goSpace(){
+      this.$router.push("/mine")
+    }
+  },
+  beforeUpdate() {
+    this.checkStaus();
+  },
+  updated(){
+  },
+  created() {
+    this.getUserId();
+  },
+  mounted() {
+    this.getUserInfoById();
+    this.getUserIpInfoById();
+    this.getNumOfLoginById();
   }
-}
+};
 </script>
 
 <style>
-/* http://meyerweb.com/eric/tools/css/reset/ 
-   v2.0 | 20110126
-   License: none (public domain)
-*/
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	vertical-align: baseline;
+@import "css/reset.css";
+
+
+@font-face {
+  font-family: jc4uFont;
+  src: url("assets/Monaco.ttf");
 }
-*{
-  font-family: "等线";
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
 }
 
-.nav-ul{
+.nav-ul {
   background-color: #282b2d;
   height: 70px;
 }
 
-.nav-ul li{
+.nav-ul li {
   color: white;
   display: inline-block;
   font-size: 18px;
   font-family: "等线";
-  line-height: 70px;
+  line-height: 65px;
   width: 100px;
   font-weight: bold;
+  transition: all 0.5s;
 }
 
-.nav-ul li:hover{
-  background-color: #34a853;
-  border-bottom:6px rgb(20, 155, 218) solid;
+.nav-ul li:hover {
+  /* 过渡动画 */
+  color: #c09725;
   cursor: pointer;
 }
 
-footer{
+footer {
   background-color: #282b2d;
   height: 30px;
   line-height: 30px;
   color: #fff;
   font-weight: bold;
-  margin-top:30px;
 }
 
-.logo{
+.logo {
   position: relative;
-  left: 50px;
+  left: 6vw;
   line-height: 70px;
   display: inline-block;
   float: left;
-  padding-left: 3;
 }
 
-.nav-headimg img{
+.uptotop {
+  font-size: 40px;
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+}
+.router-link-active {
+  background-color: #555349;
+  border-bottom: 5px rgb(231, 164, 38) solid;
+}
+
+/*这里是设置个人信息的css样式*/
+.user-info {
+  position: absolute;
+  font-size: 0.8em;
+  letter-spacing: 1px;
+}
+
+.user-img {
+  right: 1vw;
+}
+.user-img img {
   border-radius: 50%;
   height: 40px;
   width: 40px;
   position: relative;
-  top:15px;
+  top: 15px;
 }
-.uptotop{
-  font-size: 40px;
-  position: fixed;
-  bottom:50px;
-  right:50px;
+.user-text {
+  display: inline-block;
+  margin: 1px 0;
 }
-.router-link-active{
-  background-color: #34a853;
+.user-logout {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 1em;
+  color: #000;
+}
+.user-logout:hover {
+  font-weight: bold;
+  color: red;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.popover{
+  padding :10px;
+}
+.user-space{
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 1em;
+  color: #000;
+}
+
+.user-space:hover {
+  font-weight: bold;
+  color: rebeccapurple;
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>
