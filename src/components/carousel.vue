@@ -30,13 +30,11 @@ export default {
     async getLunboInfo() {
       //先获取信息
       let info = await this.$public.getLunboInfo();
-      this.list = info;
+      // this.list = info;
+      if(info.status){
+        this.list = info.content;
+      }
       //进行设置
-      this.setLunboInfo();
-    },
-    setLunboInfo() {
-      let data = this.$data;
-      data.size = data.list.length;
     }
   }
 };

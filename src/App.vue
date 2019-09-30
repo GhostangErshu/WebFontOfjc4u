@@ -9,26 +9,34 @@
         <router-link tag="li" to="/blog">学长课堂</router-link>
         <router-link tag="li" to="/about">关于</router-link>
 
-        <!-- 这是一个浮动时间触发的模块 -->
-        <el-popover placement="top-start" width="300" title="个人信息" trigger="click" class="popover">
-          <li class="user-info user-text">用户名：{{userinfo.name}}</li>
-          <br>
-          <li class="user-info user-text">最近登录时间：{{ipinfo.time}}</li>
-          <br>
-          <li class="user-info user-text">最近登录地点：{{ipinfo.location}}</li>
-          <br>
-          <li class="user-info user-text">总登录次数：{{numOfLogin}}</li>
-          <br>
-          <li class="userinfo user-space" @click='goSpace'>个人中心</li>
-          <li class="user-info user-logout" @click="logout">注销</li>
-          <br>
-          <li class="user-info user-img" slot="reference">
-            <img :src="userinfo.head" alt="刷新" style="font-size:0.7em">
-          </li>
-        </el-popover>
+        <!-- 这是一个浮动事件触发的模块 -->
+        <span v-if="checkUserLogin()">
+          <el-popover
+            placement="top-start"
+            width="300"
+            title="个人信息"
+            trigger="click"
+            class="popover"
+          >
+            <li class="user-info user-text">用户名：{{userinfo.name}}</li>
+            <br />
+            <li class="user-info user-text">最近登录时间：{{ipinfo.time}}</li>
+            <br />
+            <li class="user-info user-text">最近登录地点：{{ipinfo.location}}</li>
+            <br />
+            <li class="user-info user-text">总登录次数：{{numOfLogin}}</li>
+            <br />
+            <li class="userinfo user-space" @click="goSpace">个人中心</li>
+            <li class="user-info user-logout" @click="logout">注销</li>
+            <br />
+            <li class="user-info user-img" slot="reference">
+              <img :src="userinfo.head" alt="刷新" style="font-size:0.7em" />
+            </li>
+          </el-popover>
+        </span>
       </ul>
     </span>
-    <router-view/>
+    <router-view />
     <span v-if="isLogin">
       <div class="uptotop">
         <a href="#">
@@ -36,7 +44,13 @@
         </a>
       </div>
       <footer>
-        <p>Copyright © 2018-2019 JC4U. All rights reserved.</p>
+        <p class="ICP">
+          Copyright © 2018-2019 JC4U. All rights reserved.
+          <a
+            href="http://www.beian.miit.gov.cn/"
+            target="_blank"
+          >蜀ICP备19029332号</a>
+        </p>
       </footer>
     </span>
   </div>
@@ -53,10 +67,10 @@ export default {
   data() {
     return {
       isLogin: false,
-      userinfo: {head:"http://iph.href.lu/80x80?text=%E9%BB%98%E8%AE%A4"},
+      userinfo: { head: "http://iph.href.lu/80x80?text=未登录" },
       ipinfo: {},
       userid: "",
-      numOfLogin: 0,
+      numOfLogin: 0
     };
   },
   methods: {
@@ -65,19 +79,19 @@ export default {
     },
     //通过id获取用户信息
     async getUserInfoById() {
-      let info = await this.$public.getUserInfoById(this.userid)
-      this.userinfo = info;
+      let temp = await this.$public.getUserInfoById(this.userid);
+      this.userinfo = temp.content;
     },
     //通过id获取用户登录信息
     async getUserIpInfoById() {
-      let ip = await this.$public.getUserIpInfoById(this.userid);
-      this.ipinfo = ip;
+      let temp = await this.$public.getUserIpInfoById(this.userid);
+      this.ipinfo = temp.content;
     },
     //获取登录次数
     async getNumOfLoginById() {
       //调用公共js中的API方法
-      let num = await this.$public.getNumOfLoginById(this.userid)
-      this.numOfLogin = num;
+      let temp = await this.$public.getNumOfLoginById(this.userid);
+      this.numOfLogin = temp.content;
     },
     getUserId() {
       //判断cookies是否还存在
@@ -85,22 +99,32 @@ export default {
         this.userid = this.$cookies.get("userid");
     },
     //注销登录
-    logout(){
-      this.$confirm("确认注销登录吗？").then(
-          this.$public.logout
-      ).catch(_ => {});
+    logout() {
+      this.$confirm("确认注销登录吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => this.$public.logout())
+        .catch(r => console.log(r));
     },
-    goSpace(){
-      this.$router.push("/mine")
+    goSpace() {
+      this.$router.push("/mine");
+    },
+    checkUserLogin() {
+      //判断cookies是否还存在
+      if (this.$cookies.isKey("access-token"))
+        if (this.$cookies.get("access-token").length > 10) return true;
+      return false;
     }
   },
   beforeUpdate() {
     this.checkStaus();
   },
-  updated(){
-  },
+  updated() {},
   created() {
     this.getUserId();
+    this.checkStaus();
   },
   mounted() {
     this.getUserInfoById();
@@ -112,7 +136,6 @@ export default {
 
 <style>
 @import "css/reset.css";
-
 
 @font-face {
   font-family: jc4uFont;
@@ -150,10 +173,14 @@ export default {
 
 footer {
   background-color: #282b2d;
-  height: 30px;
+  height: auto;
   line-height: 30px;
   color: #fff;
   font-weight: bold;
+}
+.ICP a {
+  text-decoration: none;
+  color: #fff;
 }
 
 .logo {
@@ -208,10 +235,10 @@ footer {
   text-decoration: underline;
   cursor: pointer;
 }
-.popover{
-  padding :10px;
+.popover {
+  padding: 10px;
 }
-.user-space{
+.user-space {
   display: inline-block;
   margin-top: 10px;
   font-size: 1em;

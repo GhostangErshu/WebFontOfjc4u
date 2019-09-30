@@ -32,7 +32,10 @@ export default {
   },
   methods: {
     async getWebsiteInfo() {
-      this.listOfWebsite = await this.$public.getAllWebsiteInfo();
+      let temp = await this.$public.getAllWebsiteInfo();
+      if(temp.status){
+        this.listOfWebsite = temp.content;
+      }
     }
   },
   created() {

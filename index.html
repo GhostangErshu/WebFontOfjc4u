@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
 
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
-    <title>JC4U | 你的Java学习交流社区</title>
-  </head>
-  <body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <title>JC4U | 你的Java学习交流社区</title>
+</head>
+
+<body>
+  <transition name="fade">
     <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+  </transition>
+</body>
+
+<style>
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: all 0.5s
+  }
+
+  .fade-enter,
+  .fade-leave-to
+
+  /* .fade-leave-active in <2.1.8 */
+    {
+    opacity: 0
+  }
+
+</style>
+
 </html>

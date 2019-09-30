@@ -2,13 +2,13 @@
   <div class="information" v-title data-title="信息通知 |  JC4U">
     <div class="information-title">
       <span class="information-title-title">通知公告</span>
-      <hr>
+      <hr />
     </div>
     <div class="information-content">
       <el-table
         :data="listOfDisplay"
         style="width: 100%"
-        :default-sort="{prop: 'title', order: 'descending'}"
+        :default-sort="{ order: 'descending'}"
       >
         <el-table-column prop="title" label="标题" sortable></el-table-column>
         <el-table-column prop="click" label="点击" sortable width="100"></el-table-column>
@@ -35,17 +35,20 @@ export default {
       length: 0,
       input: "",
       currentPage: 10,
-      pageNum:1,
+      pageNum: 1,
       listOfDisplay: []
     };
   },
   methods: {
     async getNoticeInfo() {
       //先获取所有的通知信息
-      this.listOfNotice = await this.$public.getAllNoticeInfo();
-      this.length = this.listOfNotice.length;
-      //默认第一次显示10个
-      this.listOfDisplay = this.listOfNotice.slice(0,10);
+      let temp = await this.$public.getAllNoticeInfo();
+      if (temp.status) {
+        this.listOfNotice = temp.content.reverse();
+        this.length = this.listOfNotice.length;
+        //默认第一次显示10个
+        this.listOfDisplay = this.listOfNotice.slice(0, 10);
+      }
     },
     handleSizeChange(e) {
       //变化每一页显示的个数
@@ -58,10 +61,13 @@ export default {
       this.changeDispaly();
     },
     formatter(row, column) {},
-    changeDispaly(){
+    changeDispaly() {
       //刷新表格视图
-      let start = (this.pageNum-1)*this.currentPage;
-      this.listOfDisplay = this.listOfNotice.slice(start,start+this.currentPage);
+      let start = (this.pageNum - 1) * this.currentPage;
+      this.listOfDisplay = this.listOfNotice.slice(
+        start,
+        start + this.currentPage
+      );
     }
   },
   created() {
@@ -76,7 +82,7 @@ export default {
   margin-top: 30px;
   width: 55%;
   margin-bottom: 50px;
-  height: auto;
+  min-height: 90vh;
 }
 .information-title {
   text-align: left;

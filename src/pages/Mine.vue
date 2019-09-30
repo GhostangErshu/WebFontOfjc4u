@@ -244,22 +244,34 @@ export default {
   methods: {
     //通过id获取用户信息
     async getUserInfoById() {
-      this.userinfo = await this.$public.getUserInfoById(this.userid);
+      let temp = await this.$public.getUserInfoById(this.userid);
+      if(temp.status){
+        this.userinfo = temp.content;
+      }
     },
     //通过id获取用户登录信息
     async getUserIpInfoById() {
-      this.ipinfo = await this.$public.getUserIpInfoById(this.userid);
+      let temp = await this.$public.getUserIpInfoById(this.userid);
+      if(temp.status){
+        this.ipinfo = temp.content;
+      }
     },
     //获取现在的总成绩
     async getUserScoreInfoById() {
-      this.score = await this.$public.getUserScoreInfoById(this.userid);
+      let temp = await this.$public.getUserScoreInfoById(this.userid);
+      if(temp.status){
+        this.score = temp.content;
+      }
     },
     //通过token验证去查看成绩细节
     async getDetailOfScore() {
-      this.scoreDetails = await this.$public.getDetailOfScore({
+      let temp = await this.$public.getDetailOfScore({
         id: this.userid,
         token: this.$cookies.get("access-token")
       });
+      if(temp.status){
+        this.scoreDetails = temp.content;
+      }
     },
     //获取所有当前用户的登录日志
     async getAllLogById() {
@@ -267,7 +279,8 @@ export default {
         id: this.userid,
         token: this.$cookies.get("access-token")
       });
-      this.logs = temp.reverse();
+      if(temp.status)
+        this.logs = temp.content.reverse();
     },
     getUserId() {
       //判断cookies是否还存在
@@ -315,6 +328,7 @@ export default {
       let params = new FormData();
       //append 向form表单添加数据
       params.append("file", file);
+      params.append("stuNum", this.userid);
       //添加请求头  通过form添加的图片和文件的格式必须是multipart/form-data
       let config = {
         headers: { "Content-Type": "multipart/form-data" }
@@ -322,7 +336,7 @@ export default {
       //向后台服务器发送上传头像请求
       let result = await this.$public.uploadHeadImg(params, config);
       //如果操作成功刷新页面
-      if (result == "成功") {
+      if (result.status) {
         this.$alert("修改成功", "结果", {
           confirmButtonText: "我知道了",
           callback: re => {
@@ -355,7 +369,7 @@ export default {
         if (input.newPwd == input.repeatPwd) {
           let result = await this.$public.changeUserPwd(this.userid, input);
           //对请求的结果做判断
-          if (result) {
+          if (result.status) {
             this.$alert("修改成功!下次登录生效", "提示", {
               confirmButtonText: "确认",
               callback: re => {
@@ -378,14 +392,14 @@ export default {
     //提交意见
     async submitSuggestion() {
       if (this.suggestText.length < 200&&this.suggestText.length >20) {
-        let re = await this.$public.submitSuggestion({
+        let temp = await this.$public.submitSuggestion({
           username: this.userid,
           content: this.suggestText
         });
-        if(re=="提交成功")
-          this.$message({type: "success",message: re});
+        if(temp.status)
+          this.$message({type: "success",message: "感谢你的建议"});
         else
-          this.$message({type: "error",message: re});
+          this.$message({type: "error",message: temp.error});
         this.suggestText = "";
         this.suggestVisible = false;
       } else
@@ -401,7 +415,7 @@ export default {
       );
       let message = "更新失败,请稍后重试!";
       //更新失败
-      if (index != 0) {
+      if (index.status) {
         message = "更新成功";
       }
       //提示信息

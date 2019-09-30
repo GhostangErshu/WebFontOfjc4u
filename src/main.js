@@ -9,7 +9,7 @@ import crypto from 'crypto'
 import VueParticles from 'vue-particles'  
 
 //导入公共js
-import publicMethods from "@/public/index"
+import publicMethods from "@/api/index"
 
 import 'element-ui/lib/theme-chalk/index.css'
 

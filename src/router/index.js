@@ -17,7 +17,7 @@ import axios from 'axios'
 import cookies from 'vue-cookies'
 import qs from 'qs'
 
-import publicMethod from '@/public/index'
+import publicMethod from '@/api/index'
 
 Vue.use(Router)
 Vue.use(Home)
@@ -96,9 +96,9 @@ const router = new Router({
       component: blogEditor
     },
     {
-      path:'/blogResult/:id',
-      name:'blogResult',
-      component:blogResult
+      path: '/blogResult/:id',
+      name: 'blogResult',
+      component: blogResult
     },
     {
       path: '*',
@@ -111,41 +111,25 @@ const router = new Router({
 
 
 router.beforeEach((to, from, next) => {
-  //初始状态未登录
-  let isLogin = false;
-  //先判断有没有cookies,如果没有对应的cookies就不进行操作
-  if (cookies.isKey("access-token")) {
-    let accessToken = cookies.get("access-token");
-    //在这里和后台进行交互，判断token是否过期了
-    axios.post(publicMethod.tokenCheckUrl, qs.stringify({
-      token: accessToken
-    })).then(function (res) {
-      if (res.data) {
-        //如果token有效
-        isLogin = true;
-      } else {
-        //如果token无效
-        isLogin = false;
-        cookies.remove("access-token");
-        cookies.remove("userid");
-      }
-      var whitePaper = ['login'];
-      //再根据isLogin的值进行相应的操作
-      if (whitePaper.indexOf(to.name)==-1) {
-        if (!isLogin) {
-          next('login')
-        } else next();
-      } else {
-        if (!isLogin) {
-          next();
+  if (to.name.indexOf("home") == -1 && to.name.indexOf("login") == -1) {
+    if (cookies.isKey("access-token")) {
+      let accessToken = cookies.get("access-token");
+      axios.post(publicMethod.tokenCheckUrl, qs.stringify({
+        token: accessToken
+      })).then(function (res) {
+        if (res.data.status) {
+          //如果token有效
+          next()
         } else {
-          next("home");
+          //如果token无效
+          cookies.remove("access-token");
+          cookies.remove("userid");
+          next("login")
         }
-      }
-    }).catch(err => alert("服务器未就绪，请稍后重试！"))
+      }).catch(err => console.log(err))
+    } else next("login")
   } else {
-    cookies.set("access-token", "");
-    next('login');
+    next();
   }
 })
 

@@ -33,7 +33,10 @@ export default {
   },
   methods:{
     async getVideoInfo() {
-      this.listOfVideo = await this.$public.getAllVideoInfo();
+      let temp = await this.$public.getAllVideoInfo();
+      if(temp.status){
+        this.listOfVideo = temp.content
+      } else console.log(temp.error)
     }
   },
   created(){

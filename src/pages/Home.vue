@@ -11,7 +11,7 @@
     <div class="home-content">
       <!--信息模块-->
       <noticePart id="noticePart"></noticePart>
-      <timeAndWeather id="timeAndWeather"></timeAndWeather>
+      <timeAndEvent id="timeAndWeather"></timeAndEvent>
       <!--视频模块-->
       <videoPart></videoPart>
       <!-- 推荐网站模块 -->
@@ -26,7 +26,7 @@ import countDown from "@/components/countDown";
 import videoPart from "@/components/videoPart";
 import noticePart from "@/components/noticePart";
 import websitePart from "@/components/websitePart";
-import timeAndWeather from "@/components/timeAndWeather";
+import timeAndEvent from "@/components/timeAndEvent";
 
 export default {
   name: "Home",
@@ -41,7 +41,7 @@ export default {
     videoPart,
     noticePart,
     websitePart,
-    timeAndWeather
+    timeAndEvent
   }
 };
 </script>

@@ -33,9 +33,11 @@ export default {
     async getDetailInfo(){
       let taskid = this.$route.params.id;
       //获取Grade详细信息
-      let temp = await this.$public.getDataByIdAndTaskid(this.userid,taskid);
+      let linshi1 = await this.$public.getDataByIdAndTaskid(this.userid,taskid);
+      let temp = linshi1.content;
       //获取task信息
-      let task = await this.$public.getTaskInfoByTaskid(taskid);
+      let linshi2 = await this.$public.getTaskInfoByTaskid(taskid);
+      let task = linshi2.content;
       //新建一个title属性并赋值,使用原型对象的构造方法
       // temp.prototype.title = task.title;此方法不行，没有使用到构造函数
       //赋值

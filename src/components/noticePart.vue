@@ -39,7 +39,9 @@ export default {
   methods: {
     async getNoticeInfo() {
       let temp = await this.$public.getAllNoticeInfo();
-      this.listOfNotice = temp.reverse().slice(0,10);
+      if(temp.status){
+        this.listOfNotice = temp.content.reverse().slice(0,10);
+      }
     }
   },
   created() {
@@ -60,7 +62,7 @@ export default {
 }
 .home-comtent-infomation {
   text-align: left;
-  height: auto;
+  height: 450px;
 }
 .home-comtent-infomation ul {
   display: inline-block;

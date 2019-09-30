@@ -43,7 +43,7 @@ export default {
     initEditor() {
       var editor = new E("#editor");
       editor.customConfig.uploadImgServer =
-        this.$public.host + "/jc4u.uploadImgForEditor";
+        this.$public.host + "/file/uploadImgForEditor";
       editor.customConfig.uploadImgParams = {
         token: this.$cookies.get("access-token")
       };
@@ -70,7 +70,7 @@ export default {
       );
       if (result.indexOf("成功") != 0) {
         this.$message({ message: result, type: "success" });
-        setTimeout(this.$router.push("/blog"), 3000);
+        // setTimeout(this.$router.push("/blog"), 3000);
       } else this.$message({ message: result, type: "error" });
       // this.$alert(result,"提交结果",{confirmButtonText:"好的"},re=>this.$router.push("/blog")).catch(re=>console.log(re))
     },
@@ -82,9 +82,8 @@ export default {
     async getParm() {
       this.msg = this.$route.params.id;
       //验证taskid是否合法
-      let access = await this.$public.checkTaskid(0,this.msg);
-      if(!access)
-        this.$router.push("/404")
+      let access = await this.$public.checkTaskid(0, this.msg);
+      if (!access.status) this.$router.push("/404");
     },
     back() {
       this.$router.go(-1);
@@ -93,24 +92,26 @@ export default {
       //获取任务信息
       let temp = await this.$public.getTaskInfoByTaskid(this.msg);
       //对日期进行处理
-      let now = new Date();
-      now.setTime(parseInt(temp.deadline));
-      let time =
-        now.getFullYear() +
-        "/" +
-        (now.getMonth() + 1) +
-        "/" +
-        now.getDate() +
-        "  剩余：" +
-        Math.round(
-          (temp.deadline - new Date().getTime()) / (1000 * 60 * 60 * 24)
-        ) +
-        "天";
-      //数据拼装
-      this.taskInfo = {
-        title: temp.title,
-        deadline: time
-      };
+      if (temp.status) {
+        let now = new Date();
+        now.setTime(parseInt(temp.content.deadline));
+        let time =
+          now.getFullYear() +
+          "/" +
+          (now.getMonth() + 1) +
+          "/" +
+          now.getDate() +
+          "  剩余：" +
+          Math.round(
+            (temp.content.deadline - new Date().getTime()) / (1000 * 60 * 60 * 24)
+          ) +
+          "天";
+        //数据拼装
+        this.taskInfo = {
+          title: temp.content.title,
+          deadline: time
+        };
+      }
     },
     // 打开文件上传
     uploadFile: function() {
@@ -165,7 +166,7 @@ export default {
 </script>
 
 <style scoped>
-.contain{
+.contain {
   background-image: url("../assets/bg.jpg");
   background-size: 100% auto;
   min-height: 90vh;
@@ -182,7 +183,7 @@ export default {
   position: relative;
   background-color: white;
 }
-.admin{
+.admin {
   height: 60px;
 }
 h1 {
@@ -198,20 +199,20 @@ h1 {
   color: white;
   font-size: 14px;
   transition: all 0.8s;
-  position:absolute;
-  bottom:20px;
+  position: absolute;
+  bottom: 20px;
 }
 #submit {
   background-color: #f4a460;
-  right:20px;
+  right: 20px;
 }
 #back {
   background-color: goldenrod;
-  right:160px;
+  right: 160px;
 }
 #enclosure {
   background-color: deepskyblue;
-  right:300px;
+  right: 300px;
 }
 
 .button:hover {

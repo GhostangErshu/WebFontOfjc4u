@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="blog-body">
-        <el-tabs v-model="activeName" lazy=true >
+        <el-tabs v-model="activeName" lazy="true">
           <el-tab-pane name="notCompleted">
             <span slot="label">
               <i class="el-icon-edit-outline"></i> 待完成
@@ -37,7 +37,12 @@
               <el-table-column prop="workid" label="操作" width="150">
                 <template slot-scope="scope">
                   <!-- 这里处理的是当已截止的情况下怎么处理 -->
-                  <el-button @click="goEditor(scope.row)" type="text" size="small" v-if="scope.row.deadline.indexOf('已截止')==-1">提交</el-button>
+                  <el-button
+                    @click="goEditor(scope.row)"
+                    type="text"
+                    size="small"
+                    v-if="scope.row.deadline.indexOf('已截止')==-1"
+                  >提交</el-button>
                   <el-button type="text" size="small">下载题目要求</el-button>
                 </template>
               </el-table-column>
@@ -89,7 +94,7 @@ export default {
       notCompletedData: [],
       notApprovedData: [],
       completedData: [],
-      classInfo:{}
+      classInfo: {}
     };
   },
   methods: {
@@ -106,29 +111,36 @@ export default {
       //这里的id就是用户id
       let temp = await this.$public.getNotCompletedDataById(this.userid);
       let array = [];
-      for(let i = 0;i<temp.length;i++){
+      for (let i = 0; i < temp.content.length; i++) {
         //通过taskid来查询task信息
-        let task = await this.$public.getTaskInfoByTaskid(temp[i].taskid);
-        //进行日期的处理
-        let day = Math.floor((task.deadline-new Date().getTime())/ (1000 * 60 * 60 * 24));
-        let hour = Math.round(((task.deadline-new Date().getTime()) - (1000 * 60 * 60 * 24)*day)/(1000 * 60 * 60));
-        //进行字符串的拼接
-        let tempString;
-        if(day>0)
-          tempString = day+'天'+hour+'小时';
-        else if(day==1)
-          tempString = hour+'小时';
-        else
-          tempString = "已截止";
-        array[i] = {
-          name: task.title,
-          publisher: task.publisher,
-          // 截止时间还有几天
-          deadline: tempString,
-          notes: task.notes,
-          workid: task.taskid,
-          filelink:task.filelink
-        };
+        let temp2 = await this.$public.getTaskInfoByTaskid(
+          temp.content[i].taskId
+        );
+        if (temp2.status) {
+          let task = temp2.content;
+          //进行日期的处理
+          let day = Math.floor(
+            (task.deadline - new Date().getTime()) / (1000 * 60 * 60 * 24)
+          );
+          let hour = Math.round(
+            (task.deadline - new Date().getTime() - 1000 * 60 * 60 * 24 * day) /
+              (1000 * 60 * 60)
+          );
+          //进行字符串的拼接
+          let tempString;
+          if (day > 0) tempString = day + "天" + hour + "小时";
+          else if (day == 1) tempString = hour + "小时";
+          else tempString = "已截止";
+          array[i] = {
+            name: task.title,
+            publisher: task.publisher,
+            // 截止时间还有几天
+            deadline: tempString,
+            notes: task.notes,
+            workid: task.taskId,
+            filelink: task.fileLink
+          };
+        }
       }
       this.notCompletedData = array;
     },
@@ -137,36 +149,48 @@ export default {
       let temp = await this.$public.getCompletedDataById(this.userid);
 
       let array = [];
-
-      for(let i = 0;i<temp.length;i++){
-        //通过taskid来查询task信息
-        let task = await this.$public.getTaskInfoByTaskid(temp[i].taskid);
-        //拼装数据
-        array[i] = {
-          name: task.title,
-          submitter: temp[i].name,
-          corrector: temp[i].currector,
-          rating_time: temp[i].time_currect,
-          notes: temp[i].comment,
-          score: temp[i].grade,
-          workid: task.taskid
-        };
-      }
+      if (temp.status)
+        for (let i = 0; i < temp.content.length; i++) {
+          //通过taskid来查询task信息
+          let temp2 = await this.$public.getTaskInfoByTaskid(
+            temp.content[i].taskId
+          );
+          if (temp2.status) {
+            let task = temp2.content;
+            //拼装数据
+            array[i] = {
+              name: task.title,
+              submitter: temp.content[i].name,
+              corrector: temp.content[i].currector,
+              rating_time: temp.content[i].time_currect,
+              notes: temp.content[i].comment,
+              score: temp.content[i].grade,
+              workid: task.taskId
+            };
+          }
+        }
       this.completedData = array;
     },
     async getNotApprovedData() {
       //这里的id就是用户id
       let temp = await this.$public.getNotApprovedDataById(this.userid);
       let array = [];
-      for(let i =0;i<temp.length;i++){
-        //查询task
-        let task = await this.$public.getTaskInfoByTaskid(temp[i].taskid);
-        array[i] = {
-          name: task.title,
-          submitter: temp[i].name,
-          commit_time: temp[i].time_submit,
-          notes: task.notes
-        };
+      if (temp.status) {
+        for (let i = 0; i < temp.content.length; i++) {
+          //查询task
+          let temp2 = await this.$public.getTaskInfoByTaskid(
+            temp.content[i].taskId
+          );
+          if (temp2.status) {
+            let task = temp2.content;
+            array[i] = {
+              name: task.title,
+              submitter: temp.content[i].name,
+              commit_time: temp.content[i].time_submit,
+              notes: task.notes
+            };
+          }
+        }
       }
       this.notApprovedData = array;
     },
@@ -175,31 +199,34 @@ export default {
       if (this.$cookies.isKey("userid"))
         this.userid = this.$cookies.get("userid");
     },
-    async getClassInfo(){
-      this.classInfo = await this.$public.getClassInfoById(this.userid);
-    },
-    putTaskid(){
-      let tempArray = {
-        notCompleted:new Array(this.notCompletedData.length),
-        notApproved:new Array(this.notApprovedData.length),
-        completed:new Array(this.completedData.length)
+    async getClassInfo() {
+      let temp = await this.$public.getClassInfoById(this.userid);
+      if (temp.status) {
+        this.classInfo = temp.content;
       }
-      for(let i=0;i<this.notCompletedData.length;i++){
+    },
+    putTaskid() {
+      let tempArray = {
+        notCompleted: new Array(this.notCompletedData.length),
+        notApproved: new Array(this.notApprovedData.length),
+        completed: new Array(this.completedData.length)
+      };
+      for (let i = 0; i < this.notCompletedData.length; i++) {
         tempArray.notCompleted.push(this.notCompletedData[i].workid);
       }
-      for(let i=0;i<this.notApprovedData.length;i++){
+      for (let i = 0; i < this.notApprovedData.length; i++) {
         tempArray.notApproved.push(this.notApprovedData[i].workid);
       }
-      for(let i=0;i<this.completedData.length;i++){
+      for (let i = 0; i < this.completedData.length; i++) {
         tempArray.completed.push(this.completedData[i].workid);
       }
       this.$access_data = tempArray;
     }
   },
   created() {
-    this.getUserId(); 
+    this.getUserId();
   },
-  mounted(){
+  mounted() {
     this.getNotCompletedData();
     this.getNotApprovedData();
     this.getCompletedData();
@@ -211,8 +238,8 @@ export default {
 
 
 <style scoped>
-.contain{
-  background-image: url("https://cdn.pixabay.com/photo/2019/06/14/09/25/cloud-4273197_960_720.png")
+.contain {
+  background-image: url("https://cdn.pixabay.com/photo/2019/06/14/09/25/cloud-4273197_960_720.png");
 }
 .blog {
   width: 50vw;
@@ -247,7 +274,7 @@ export default {
   margin: 15px 0;
 }
 .blog-head-info span {
-  font-weight:normal;
+  font-weight: normal;
   margin-left: 1em;
   font-size: 0.9em;
 }

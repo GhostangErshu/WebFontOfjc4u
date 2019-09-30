@@ -5,7 +5,7 @@
     <div class="notfound-content-img">
       <img src="../assets/404.png" alt />
     </div>
-    <div class="auto_redirct">{{count}}S后将自动返回上一页</div>
+    <!-- <div class="auto_redirct">{{count}}S后将自动返回上一页</div> -->
     <div class="notfound-content-link" v-for="item in link" :key="item.id">
       <router-link :to="item.to" class="to">{{item.title}}</router-link>
     </div>
@@ -41,7 +41,7 @@ export default {
     }
   },
   mounted() {
-    this.autoToLastPage();
+    // this.autoToLastPage();
   }
 };
 </script>

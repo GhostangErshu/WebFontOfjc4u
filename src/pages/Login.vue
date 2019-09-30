@@ -35,7 +35,7 @@
                   :src="imageCodeUrl"
                   onclick="javascript:this.src+='?tm'+Math.random()"
                   alt="点击刷新"
-                >
+                />
               </span>
             </div>
             <div>
@@ -52,8 +52,8 @@
             <!-- <div class="moreLoginMethods">
               <div class="moreIcon"><img src="../assets/QQ.png" alt=""></div>
               <div class="moreIcon"><img src="../assets/wechat.png" alt=""></div>
-            </div> -->
-            <br>
+            </div>-->
+            <br />
             <p>Designed By JC4U</p>
           </div>
         </div>
@@ -80,11 +80,7 @@ export default {
   },
   watch: {
     code() {
-      //只请求一次
-      if (this.count > 0) {
-        this.getImageCode();
-        this.count--;
-      }
+      if (this.code.length == 5) this.getImageCode();
     }
   },
   methods: {
@@ -124,21 +120,21 @@ export default {
       const that = this;
       //组装对象
       let requestBody = {
-        username: this.username,
+        stuNum: this.username,
         password: this.password
       };
       //进行验证请求
       let result = await this.$public.login(requestBody);
       //对返回的结果进行处理
-      if (result.length > 50) {
+      if (result.status) {
         this.hiddenBox();
         setTimeout(function() {
           //进行一次刷新
-          that.$router.replace("home");
+          that.$router.replace("/home");
           that.$router.go(0);
         }, 1000);
       } else
-        this.$alert(result, "结果", {
+        this.$alert(result.error, "结果", {
           confirmButtonText: "确定",
           callback: re => {
             let url = this.imageCodeUrl;
@@ -149,7 +145,9 @@ export default {
     },
     async loadBackImage() {
       let temp = await this.$public.getBackGroundImage();
-      this.imgUrl = temp.url;
+      if (temp.status) {
+        this.imgUrl = temp.content.url;
+      }
     },
     hiddenBox() {
       //将登录框的宽度设为0，使用过渡形成一个简单的动画
@@ -159,33 +157,44 @@ export default {
       //先判断用户的输入框中是否输入
       if (this.username.length >= 6) {
         //请求后台看是否有该用户
-        let exist = await this.$public.checkUserExist({username:this.username});
+        let exist = await this.$public.checkUserExist({
+          username: this.username
+        });
         //如果存在就发送邮件
-        if(exist!=0){
-          let verifiCode = await this.$public.sendEmailForResetPwd({username:this.username});
-          this.$prompt('邮件已发送，输入你收到的验证码:','提示',{
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            inputPattern:/^[0-9]{4}$/,
-            inputErrorMessage:'验证码格式不正确'
-          }).then(async re=> {
-            //验证是否发邮件
-            let isSend = await this.$public.checkIsSendEmail(verifiCode);
-            if(isSend){ 
-              //重置密码
-              let result = await this.$public.resetUserPwd({username:this.username,code:re.value});
-              this.$message({type:'success',message:result+"，即将刷新页面"});
-              setTimeout(_=>this.$router.go(0), 600);
-              //代理登录
-            } else {
-               this.$message({type:'error',message:result});
-            }
+        if (exist != 0) {
+          let verifiCode = await this.$public.sendEmailForResetPwd({
+            username: this.username
+          });
+          this.$prompt("邮件已发送，输入你收到的验证码:", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            inputPattern: /^[0-9]{4}$/,
+            inputErrorMessage: "验证码格式不正确"
           })
-          .catch(re=>console.log(re))
+            .then(async re => {
+              //验证是否发邮件
+              let isSend = await this.$public.checkIsSendEmail(verifiCode);
+              if (isSend) {
+                //重置密码
+                let result = await this.$public.resetUserPwd({
+                  username: this.username,
+                  code: re.value
+                });
+                this.$message({
+                  type: "success",
+                  message: result + "，即将刷新页面"
+                });
+                setTimeout(_ => this.$router.go(0), 600);
+                //代理登录
+              } else {
+                this.$message({ type: "error", message: result });
+              }
+            })
+            .catch(re => console.log(re));
         } else {
-          this.$alert("用户不存在","提示",{
-            confirmButtonText:"重新输入"
-          })
+          this.$alert("用户不存在", "提示", {
+            confirmButtonText: "重新输入"
+          });
         }
       } else {
         this.$message({
@@ -295,20 +304,20 @@ export default {
   width: 40%;
 }
 
-.moreLoginMethods{
-  margin-top:10px;
+.moreLoginMethods {
+  margin-top: 10px;
   text-align: center;
 }
 
-.moreIcon{
+.moreIcon {
   float: left;
-  margin-left:28%;
+  margin-left: 28%;
 }
-.moreIcon:hover{
+.moreIcon:hover {
   cursor: pointer;
 }
-.moreIcon img{
-  margin-top:10px;
+.moreIcon img {
+  margin-top: 10px;
   height: 30px;
   width: 30px;
   display: inline-block;

@@ -52,16 +52,21 @@ export default {
       serchText: ""
     };
   },
-  created() {this.getAllInfo()},
+  created() {
+    this.getAllInfo();
+  },
   mounted() {
     // this.getAllInfo();
   },
   methods: {
     async getAllInfo() {
-      this.allInfo = await this.$public.getAllResouceInfo();
-      this.total = this.allInfo.length;
-      //调用一次数据
-      this.display(1);
+      let temp = await this.$public.getAllResouceInfo();
+      if (temp.status) {
+        this.allInfo = temp.content;
+        this.total = this.allInfo.length;
+        //调用一次数据
+        this.display(1);
+      }
     },
     display(pageId) {
       //确认需要显示的条目数
@@ -84,7 +89,7 @@ export default {
       this.display(this.$data.current_page);
     },
     serchChange() {
-        //实现搜索功能
+      //实现搜索功能
     },
     clearItems(e) {
       const length = e.length;

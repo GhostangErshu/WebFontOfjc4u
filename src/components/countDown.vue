@@ -24,12 +24,14 @@ export default {
     async setCountDown() {
       //获取信息
       let info = await this.$public.getCountDownInfo();
-      //将传过来的数据进行依次设置
-      this.countdown_thing = info.thing;
-      //将传过来的时间字符串进行转换
-      let date = parseInt(info.time) - new Date().getTime();
-      let time = Math.floor(date / (1000 * 60 * 60 * 24)) + 1;
-      this.countdown_time = time;
+      if (info.status) {
+        //将传过来的数据进行依次设置
+        this.countdown_thing = info.thing.content;
+        //将传过来的时间字符串进行转换
+        let date = parseInt(info.time) - new Date().getTime();
+        let time = Math.floor(date / (1000 * 60 * 60 * 24)) + 1;
+        this.countdown_time = time;
+      }
     }
   },
   created() {
@@ -44,7 +46,7 @@ export default {
   height: auto;
   width: 100px;
   padding: 10px;
-  background-color: #E1FFFF;
+  background-color: #e1ffff;
   border-radius: 5px;
   box-shadow: 2px 2px 2px #ccc;
   transition: all 0.5s;
