@@ -11,7 +11,8 @@ import qs from "qs"
 //请求的最大时间
 axios.defaults.timeout = 10000
 
-const serverLocation = "http://localhost:10086"
+const serverLocation = "http://47.106.222.240:7180"
+// const serverLocation = "http://localhost:10086"
 
 const jc4u = {
   //后台请求地址

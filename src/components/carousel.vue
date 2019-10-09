@@ -48,12 +48,6 @@ export default {
   text-align: center; */
 }
 .nav-image {
-  /* vertical-align:middle;
-  display: inline-block;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  height: auto; */
   width: 100vw;
   height: 80vh;
   background-size: 100%;

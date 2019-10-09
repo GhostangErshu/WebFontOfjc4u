@@ -143,7 +143,7 @@ export default {
 }
 
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: "jc4uFont","Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -158,10 +158,10 @@ export default {
   color: white;
   display: inline-block;
   font-size: 18px;
-  font-family: "等线";
+  font-family: "等线",等线;
   line-height: 65px;
   width: 100px;
-  font-weight: bold;
+  font-weight:600;
   transition: all 0.5s;
 }
 
@@ -178,7 +178,7 @@ footer {
   color: #fff;
   font-weight: bold;
 }
-.ICP a {
+.ICP a { 
   text-decoration: none;
   color: #fff;
 }

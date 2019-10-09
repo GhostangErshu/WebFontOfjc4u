@@ -1,10 +1,10 @@
 <template>
-  <div v-if="countdown_time>0">
+  <div v-if="countDown.time>0">
     <div class="count-frist">
       <span class="count-text">距离</span>
-      <span class="count-thing">{{countdown_thing}}</span>
+      <span class="count-thing">{{countDown.thing}}</span>
       <span class="count-text">还有</span>
-      <span class="count-time">{{countdown_time}}</span>
+      <span class="count-time">{{countDown.time}}</span>
       <span class="count-text">天</span>
     </div>
   </div>
@@ -15,9 +15,10 @@ export default {
   data() {
     return {
       //事件的时间
-      countdown_time: 0,
-      //时间对象
-      countdown_thing: ""
+      countDown:{
+        time:0,
+        thing:""
+      }
     };
   },
   methods: {
@@ -26,11 +27,11 @@ export default {
       let info = await this.$public.getCountDownInfo();
       if (info.status) {
         //将传过来的数据进行依次设置
-        this.countdown_thing = info.thing.content;
+        this.countDown.thing = info.content.thing;
         //将传过来的时间字符串进行转换
-        let date = parseInt(info.time) - new Date().getTime();
+        let date = parseInt(info.content.time) - new Date().getTime();
         let time = Math.floor(date / (1000 * 60 * 60 * 24)) + 1;
-        this.countdown_time = time;
+        this.countDown.time = time;
       }
     }
   },
@@ -46,7 +47,7 @@ export default {
   height: auto;
   width: 100px;
   padding: 10px;
-  background-color: #e1ffff;
+  background-color: #fff;
   border-radius: 5px;
   box-shadow: 2px 2px 2px #ccc;
   transition: all 0.5s;

@@ -55,12 +55,15 @@ export default {
   width: 99vw;
   display: inline-block;
   margin-top: 10px;
+  height: 80vh;
+  overflow: hidden;
 }
 
 .countDown {
   position: fixed;
   right: 30px;
   top: 10vh;
+  z-index: 99999;
 }
 
 .home-content {

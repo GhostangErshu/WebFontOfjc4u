@@ -161,7 +161,7 @@ export default {
           username: this.username
         });
         //如果存在就发送邮件
-        if (exist != 0) {
+        if (exist.status) {
           let verifiCode = await this.$public.sendEmailForResetPwd({
             username: this.username
           });
@@ -172,22 +172,19 @@ export default {
             inputErrorMessage: "验证码格式不正确"
           })
             .then(async re => {
-              //验证是否发邮件
-              let isSend = await this.$public.checkIsSendEmail(verifiCode);
-              if (isSend) {
-                //重置密码
-                let result = await this.$public.resetUserPwd({
-                  username: this.username,
-                  code: re.value
-                });
+              //重置密码
+              let result = await this.$public.resetUserPwd({
+                username: this.username,
+                code: re.value,
+                time: verifiCode.content
+              });
+              if (result.status) {
                 this.$message({
                   type: "success",
-                  message: result + "，即将刷新页面"
+                  message: result.content
                 });
-                setTimeout(_ => this.$router.go(0), 600);
-                //代理登录
               } else {
-                this.$message({ type: "error", message: result });
+                this.$message({ type: "error", message: result.error });
               }
             })
             .catch(re => console.log(re));
