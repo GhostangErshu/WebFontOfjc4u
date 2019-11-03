@@ -5,7 +5,7 @@
       <hr />
       <div class="notice">任务名称：{{taskInfo.title}}</div>
       <div class="notice">截止时间：{{taskInfo.deadline}}</div>
-      <div class="notice">作业编码：{{msg}}</div>
+      <div class="notice">作业代号：{{msg}}</div>
       <hr />
       <div id="editor"></div>
       <div class="admin">
@@ -56,6 +56,7 @@ export default {
         function() {
           // 读取 html
           let content = editor.txt.html();
+          // console.log(content)
           that.commitTask(content);
         },
         false
@@ -68,10 +69,10 @@ export default {
         content,
         this.path
       );
-      if (result.indexOf("成功") != 0) {
-        this.$message({ message: result, type: "success" });
-        // setTimeout(this.$router.push("/blog"), 3000);
-      } else this.$message({ message: result, type: "error" });
+      if (result.status) {
+        this.$message({ message: "提交成功", type: "success" });
+        setTimeout(this.$router.push("/blog"), 3000);
+      } else this.$message({ message: result.error, type: "error" });
       // this.$alert(result,"提交结果",{confirmButtonText:"好的"},re=>this.$router.push("/blog")).catch(re=>console.log(re))
     },
     getUserId() {
@@ -103,9 +104,9 @@ export default {
           now.getDate() +
           "  剩余：" +
           Math.round(
-            (temp.content.deadline - new Date().getTime()) / (1000 * 60 * 60 * 24)
+            (temp.content.deadline - new Date().getTime()) / (1000 * 60 * 60)
           ) +
-          "天";
+          "小时";
         //数据拼装
         this.taskInfo = {
           title: temp.content.title,
@@ -122,19 +123,16 @@ export default {
       let file = $target.files[0];
 
       let size = file.size;
-      //判断文件是否大于5M
-      if (size > 1024 * 10) {
-        this.$alert("上传的文件大于10K,请选择小于10K的文件上传", "提示", {
+      //判断文件是否大于
+      if (size > 1024 * 1024 * 5) {
+        this.$alert("上传的文件于5M,请选择小于5M的文件上传", "提示", {
           confirmButtonText: "好的"
         }).catch(re => console.log(re));
         return;
       }
       this.file = file;
       //判断是不是Java文件
-      if (
-        file.name.indexOf("java") == -1 ||
-        file.type.indexOf("text/x-java") == -1
-      ) {
+      if (file.name.indexOf("java") == -1) {
         this.$alert("请上传Java源文件", "提示", {
           confirmButtonText: "好的"
         }).catch(re => console.log(re));
@@ -144,8 +142,7 @@ export default {
       let params = new FormData();
       //append 向form表单添加数据
       params.append("file", file);
-      params.append("token", this.$cookies.get("access-token"));
-      console.log(params);
+      // params.append("token", this.$cookies.get("access-token"));
       //添加请求头  通过form添加的图片和文件的格式必须是multipart/form-data
       let config = {
         headers: { "Content-Type": "multipart/form-data" }

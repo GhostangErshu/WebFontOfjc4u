@@ -30,7 +30,7 @@
             <li class="user-info user-logout" @click="logout">注销</li>
             <br />
             <li class="user-info user-img" slot="reference">
-              <img :src="userinfo.head" alt="刷新" style="font-size:0.7em" />
+              <img :src="userinfo.head" style="font-size:0.7em" />
             </li>
           </el-popover>
         </span>
@@ -43,7 +43,7 @@
           <i class="el-icon-arrow-up"></i>
         </a>
       </div>
-      <footer>
+      <footer v-if="isHome()">
         <p class="ICP">
           Copyright © 2018-2019 JC4U. All rights reserved.
           <a
@@ -67,7 +67,12 @@ export default {
   data() {
     return {
       isLogin: false,
-      userinfo: { head: "http://iph.href.lu/80x80?text=未登录" },
+      userinfo: {
+        head: "http://iph.href.lu/80x80?text=未登录",
+        name: "-",
+        time: "-",
+        location: "-"
+      },
       ipinfo: {},
       userid: "",
       numOfLogin: 0
@@ -80,18 +85,18 @@ export default {
     //通过id获取用户信息
     async getUserInfoById() {
       let temp = await this.$public.getUserInfoById(this.userid);
-      this.userinfo = temp.content;
+      if (temp.status) this.userinfo = temp.content;
     },
     //通过id获取用户登录信息
     async getUserIpInfoById() {
       let temp = await this.$public.getUserIpInfoById(this.userid);
-      this.ipinfo = temp.content;
+      if (temp.status) this.ipinfo = temp.content;
     },
     //获取登录次数
     async getNumOfLoginById() {
       //调用公共js中的API方法
       let temp = await this.$public.getNumOfLoginById(this.userid);
-      this.numOfLogin = temp.content;
+      if (temp.status) this.numOfLogin = temp.content;
     },
     getUserId() {
       //判断cookies是否还存在
@@ -111,6 +116,11 @@ export default {
     goSpace() {
       this.$router.push("/mine");
     },
+    isHome(){
+      if(this.$route.name=="home")
+        return true;
+      return false;
+    },
     checkUserLogin() {
       //判断cookies是否还存在
       if (this.$cookies.isKey("access-token"))
@@ -126,7 +136,7 @@ export default {
     this.getUserId();
     this.checkStaus();
   },
-  mounted() {
+  beforeMount() {
     this.getUserInfoById();
     this.getUserIpInfoById();
     this.getNumOfLoginById();
@@ -143,7 +153,7 @@ export default {
 }
 
 #app {
-  font-family: "jc4uFont","Avenir", Helvetica, Arial, sans-serif;
+  font-family: "jc4uFont", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -158,10 +168,10 @@ export default {
   color: white;
   display: inline-block;
   font-size: 18px;
-  font-family: "等线",等线;
+  font-family: "等线", 等线;
   line-height: 65px;
   width: 100px;
-  font-weight:600;
+  font-weight: 600;
   transition: all 0.5s;
 }
 
@@ -177,8 +187,9 @@ footer {
   line-height: 30px;
   color: #fff;
   font-weight: bold;
+  font-size: 0.8em;
 }
-.ICP a { 
+.ICP a {
   text-decoration: none;
   color: #fff;
 }

@@ -11,13 +11,11 @@
         <el-row :gutter="20">
           <el-col :span="6" v-for="item in listOfVideo" :key="item.id">
             <div class="grid-content">
-              <a :href="item.videoLink" target="_blank">
-                <div class="home-content-video-item">
+                <div class="home-content-video-item" @click="goDetail(item)">
                   <el-image class="image" :src="item.picLink"></el-image>
                   <p>{{item.title}}</p>
                   <p>发布时间:{{item.time}}</p>
                 </div>
-              </a>
             </div>
           </el-col>
         </el-row>
@@ -37,6 +35,10 @@ export default {
       if(temp.status){
         this.listOfVideo = temp.content
       } else console.log(temp.error)
+    },
+    goDetail(e){
+      // console.log(e.video_id);
+      this.$router.push("/video-detail/" + e.video_id);
     }
   },
   created(){

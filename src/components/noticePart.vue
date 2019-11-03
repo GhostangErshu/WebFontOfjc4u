@@ -16,10 +16,10 @@
         <span class="home-comtent-infomation-icon">
           <i class="el-icon-s-comment"></i>
         </span>
-        <span class="home-comtent-infomation-title">
-          <a href="javascript:void(0)">{{item.title}}</a>
-          <span v-if="item.id>29">
-            <img src="../assets/new.gif">
+        <span class="home-comtent-infomation-title" >
+          <a href="javascript:void(0)" @click="goDetail(item)">{{item.title}}</a>
+          <span v-if="isNew(item)">
+            <img src="../assets/new.gif" />
           </span>
         </span>
         <span class="home-comtent-infomation-time">{{item.time}}</span>
@@ -39,9 +39,25 @@ export default {
   methods: {
     async getNoticeInfo() {
       let temp = await this.$public.getAllNoticeInfo();
-      if(temp.status){
-        this.listOfNotice = temp.content.reverse().slice(0,10);
+      if (temp.status) {
+        this.listOfNotice = temp.content.reverse().slice(0, 10);
       }
+    },
+    goDetail(e) {
+      // console.log(e)
+      this.$router.push("/info-detail/" + e.notice_id);
+    },
+    isNew(e){
+      if(e!=undefined){
+        //先将时间进行分割
+        let time = e.time.split("/");
+        // 获取当前时间
+        let now = new Date().toLocaleDateString().split("/");
+        //五天之内都为新的
+        if(now[0]>=time[0]&&now[1]>=time[1]&&now[2]-time[2]<=5)
+          return true;
+      }
+      return false;
     }
   },
   created() {
@@ -86,7 +102,7 @@ export default {
 }
 .home-comtent-infomation-time {
   float: right;
-  margin-left:50px;
+  margin-left: 50px;
   font-size: 0.9em;
 }
 .more {

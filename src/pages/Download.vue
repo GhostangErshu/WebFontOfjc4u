@@ -13,7 +13,7 @@
       </el-row>
     </div>
     <div class="download-content-items">
-      <el-table :data="downloadInfo" style="width: 100%" align="center">
+      <el-table :data="downloadInfo" style="width: 100%" align="center"  @row-click="goDetail">
         <el-table-column prop="id" width="60" label="#"></el-table-column>
         <el-table-column prop="name" width="250" label="资源名称"></el-table-column>
         <el-table-column prop="contributor" label="分享人" width="180"></el-table-column>
@@ -68,6 +68,10 @@ export default {
         this.display(1);
       }
     },
+    goDetail(e) {
+      // console.log(e);
+      this.$router.push("/src-detail/" + e.src_id);
+    },
     display(pageId) {
       //确认需要显示的条目数
       let num =
@@ -105,7 +109,7 @@ export default {
 .download-content {
   margin: auto;
   width: 60%;
-  height: 90vh;
+  height: 80vh;
 }
 .download-content-searhbar {
   height: auto;

@@ -92,12 +92,12 @@ export default {
   display: block;
   line-height: 2em;
 }
-.mainUse{
-  margin-top:20px;
+.mainUse {
+  margin-top: 20px;
   text-align: center;
 }
-.mainUse h4{
+.mainUse h4 {
   font-weight: normal;
-  padding-top:10px;
+  padding-top: 10px;
 }
 </style>

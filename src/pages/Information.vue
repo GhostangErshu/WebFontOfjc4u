@@ -4,11 +4,20 @@
       <span class="information-title-title">通知公告</span>
       <hr />
     </div>
+    <div class="information-content-searhbar">
+      <el-input
+        placeholder="请输入你想查找的公告标题"
+        prefix-icon="el-icon-search"
+        v-model="search"
+        class="information-content-searhbar-input"
+      ></el-input>
+    </div>
     <div class="information-content">
       <el-table
-        :data="listOfDisplay"
+        :data="listOfDisplay.filter(data => !search || data.title.toLowerCase().includes(search.toLowerCase()))"
         style="width: 100%"
         :default-sort="{ order: 'descending'}"
+        @row-click="goDetail"
       >
         <el-table-column prop="title" label="标题" sortable></el-table-column>
         <el-table-column prop="click" label="点击" sortable width="100"></el-table-column>
@@ -30,7 +39,7 @@
 export default {
   data() {
     return {
-      host: "http://localhost",
+      search: "",
       listOfNotice: [],
       length: 0,
       input: "",
@@ -68,6 +77,10 @@ export default {
         start,
         start + this.currentPage
       );
+    },
+    goDetail(e) {
+      // console.log(e);
+      this.$router.push("/info-detail/" + e.notice_id);
     }
   },
   created() {
@@ -82,7 +95,7 @@ export default {
   margin-top: 30px;
   width: 55%;
   margin-bottom: 50px;
-  min-height: 90vh;
+  min-height: 80vh;
 }
 .information-title {
   text-align: left;
@@ -105,5 +118,12 @@ export default {
 }
 .information-content {
   margin: 30px 0 60px 0;
+}
+.information-content-searhbar {
+  height: auto;
+  text-align: left;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>

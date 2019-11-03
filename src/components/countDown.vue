@@ -35,8 +35,8 @@ export default {
       }
     }
   },
-  created() {
-    this.setCountDown();
+  mounted() {
+    // this.setCountDown();
   }
 };
 </script>

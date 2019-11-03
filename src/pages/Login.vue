@@ -4,8 +4,9 @@
     :style="{backgroundImage:'url(' + imgUrl + ')'}"
     v-title
     data-title="LOGIN | JC4U"
+    v-loading="loading"
   >
-    <div @keyup.enter="Check" class="login">
+    <div class="login">
       <div class="login-box" :style="'width:'+boxWidth+'px;'">
         <div v-show="isShow">
           <div class="login-box-tips">
@@ -75,7 +76,8 @@ export default {
       imgUrl: "",
       boxWidth: 400,
       isShow: true,
-      count: 100
+      count: 100,
+      loading:false
     };
   },
   watch: {
@@ -88,6 +90,7 @@ export default {
       //检查验证码是否填好
       if (this.code == "") {
         this.$alert("请填写验证码", "输入检查", { confirmButtonText: "确定" });
+        return;
       }
       //验证码正确的情况下
       if (this.code == this.realCode) {
@@ -117,6 +120,7 @@ export default {
       this.realCode = await this.$public.getImageCode();
     },
     async login() {
+      this.loading = true;
       const that = this;
       //组装对象
       let requestBody = {
@@ -125,6 +129,7 @@ export default {
       };
       //进行验证请求
       let result = await this.$public.login(requestBody);
+      this.loading = false;
       //对返回的结果进行处理
       if (result.status) {
         this.hiddenBox();
@@ -276,12 +281,11 @@ export default {
   color: white;
   width: 80%;
   margin: 10px 0;
+  margin-left: 0;
 }
 .login-box-form-forget {
   transition: all 0.5s;
-  margin-left: 0;
-  margin-top: 10px 0;
-  margin-bottom: 10px 0;
+  margin: 10px 0 !important;
   width: 80%;
 }
 .login-box-form-forget:hover {

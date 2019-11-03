@@ -1,16 +1,14 @@
 <template>
-    <div class="detail" v-title :data-title="data_title">
+    <div class="detail" v-title :data-title="data_title" v-loading="loading">
         <div class="detail-title">
-            <h2>成都大学关于开展2019年校级一流专业建设点申报工作的通知</h2>
-            <hr>
+            <h2>{{notice.title}}</h2>
         </div>
         <div class="detail-data">
-            <span>浏览量：517</span>
-            <span>发布人：管理员</span>
-            <span>发布时间：2019-04-25</span>
+            <span><i class="el-icon-view"></i>浏览量：{{notice.click}}</span>
+            <span><i class="el-icon-user-solid"></i>发布人：{{notice.publisher}}</span>
+            <span><i class="el-icon-edit-outline"></i>发布时间：{{notice.time}}</span>
         </div>
         <div class="detail-content">
-            
         </div>
     </div>
 </template>
@@ -19,30 +17,69 @@
 export default {
     data(){
         return{
-            data_title:"详情"
+            loading:false,
+            data_title:"详情",
+            notice:{
+                title:"",
+                publisher:"-",
+                time:"-",
+                click:"-",
+                content:""
+            }
         }
-    }
+    },
+    methods:{
+        async getNoticeInfo(){
+            let id = this.$route.params.pathMatch;
+            if(id!=undefined&&id.length==32){
+                // console.log(this.$route.params.pathMatch)
+                let temp = await this.$public.getNoticeInfoByNoticeId(id);
+                if(temp.status) {
+                    this.notice = temp.content;
+                    this.data_title = temp.content.title;
+                    console.log(this.data_title)
+                }
+            }
+            this.setContent();
+            this.loading = false;
+        },
+        setContent(){
+            this.$el.querySelector(".detail-content").innerHTML = this.notice.content;
+        }
+    },
+    mounted(){
+        this.loading = true;
+        this.getNoticeInfo();
+        this.$public.addNoticeClickNum();
+    },
 }
 </script>
 
 
-<style scoped>
+<style>
 .detail{
     width: 60%;
     margin: auto;
+    min-height: 80vh;
 }
 .detail-title{
-    margin-top: 50px;
-    font-size: 1.7em;
+    margin-top: 20px;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
 }
 .detail-data span{
     margin: 0 20px;
 }
 .detail-content{
+    font-weight: normal;
     margin: 30px 0;
-    font-size: 1.3em;
+    font-size: 1.1em;
     text-align: left;
     text-indent: 2em;
     line-height: 1.3em;
+}
+.detail-content{
 }
 </style>

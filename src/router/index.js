@@ -8,6 +8,8 @@ import Notfound from "@/pages/404"
 import detailsOfInfo from "@/pages/detailsOfInfo.vue"
 import detailsOfDownload from "@/pages/detailsOfDownload.vue"
 import detailsOfScore from "@/pages/detailsOfScore.vue"
+import detailsOfVideo from "@/pages/detailsOfVideo.vue"
+import detailsOfHomeWork from "@/pages/detailOfHomeWork.vue"
 import Login from "@/pages/Login.vue"
 import about from "@/pages/about.vue"
 import blog from "@/pages/blog.vue"
@@ -33,6 +35,8 @@ Vue.use(blog)
 Vue.use(blogEditor)
 Vue.use(blogResult)
 Vue.use(detailsOfScore)
+Vue.use(detailsOfVideo)
+Vue.use(detailsOfHomeWork)
 
 const router = new Router({
   routes: [{
@@ -61,19 +65,29 @@ const router = new Router({
       component: Mine
     },
     {
-      path: '/detailsOfInfo',
+      path: '/info-detail/*',
       name: 'detailsOfInfo',
       component: detailsOfInfo
     },
     {
-      path: '/detailsOfDownload',
+      path: '/src-detail/*',
       name: 'detailsOfDownload',
       component: detailsOfDownload
     },
     {
-      path: '/detailsOfScore',
+      path: '/video-detail/*',
+      name: 'detailsOfVideo',
+      component: detailsOfVideo
+    },
+    {
+      path: '/score-detail',
       name: 'detailsOfScore',
       component: detailsOfScore
+    },
+    {
+      path: '/detail-homework',
+      name: 'DetailOfHomeWork',
+      component: detailsOfHomeWork 
     },
     {
       path: '/login',
@@ -101,6 +115,11 @@ const router = new Router({
       component: blogResult
     },
     {
+      path: '/403',
+      name: '403',
+      component: ()=>import("../pages/phone403.vue") 
+    },
+    {
       path: '*',
       name: '404',
       component: Notfound
@@ -111,6 +130,16 @@ const router = new Router({
 
 
 router.beforeEach((to, from, next) => {
+  //禁止手机访问
+  if(publicMethod.isPhone()){
+    if(to.name!="403"){
+      next("/403");
+      return;
+    } else {
+      next();
+      return;
+    };
+  }
   if (to.name.indexOf("home") == -1 && to.name.indexOf("login") == -1) {
     if (cookies.isKey("access-token")) {
       let accessToken = cookies.get("access-token");

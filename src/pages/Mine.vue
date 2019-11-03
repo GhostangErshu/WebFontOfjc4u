@@ -1,23 +1,23 @@
 <template>
-  <div class="mine" v-title data-title="个人中心  |  JC4U">
+  <div class="mine" v-title data-title="个人中心  |  JC4U" v-loading="loading">
     <div class="baseinfo">
       <!--用户头像，点击事件触发上传头像-->
 
       <div class="headimg">
         <el-tooltip class="item" effect="dark" content="点击上传新头像，推荐128X128" placement="right">
-          <img :src="userinfo.head" alt="用户头像" @click.stop="uploadHeadImg">
+          <img :src="userinfo.head" alt="用户头像" @click.stop="uploadHeadImg" />
         </el-tooltip>
       </div>
       <!--这是基本信息-->
       <div class="baseinfo-text">
         <p class="baseinfo-text-name">姓名：{{userinfo.name}}</p>
-        <br>
+        <br />
         <p class="baseinfo-text-signature">签名：{{userinfo.sign}}</p>
-        <br>
+        <br />
         <p class="baseinfo-text-location">上次登录IP：{{ipinfo.ip}}</p>
-        <br>
+        <br />
         <p class="baseinfo-text-location">上次登录地点：{{ipinfo.location}}</p>
-        <br>
+        <br />
       </div>
     </div>
     <!--这是操作菜单-->
@@ -62,38 +62,32 @@
           <i class="el-icon-edit"></i>
         </span>
       </div>
-      <hr>
+      <hr />
       <div class="info-content-info">
         <span class="info-title">姓名</span>
         <span class="info-content-content">{{userinfo.name}}</span>
-        <br>
-        <br>
-      </div>
-      <div class="info-content-info">
-        <span class="info-title">排名</span>
-        <span class="info-content-content">{{1}}</span>
-        <br>
-        <br>
+        <br />
+        <br />
       </div>
       <div class="info-content-info">
         <span class="info-title">成绩</span>
         <span class="info-content-content">{{score}}</span>
-        <br>
-        <br>
+        <br />
+        <br />
       </div>
       <div class="info-content-info">
         <span class="info-title">班级</span>
-        <span class="info-content-content">{{"基础班"}}</span>
-        <br>
-        <br>
+        <span class="info-content-content">{{classInfo.name}}</span>
+        <br />
+        <br />
       </div>
       <div class="info-content-info">
         <span class="info-title">邮箱</span>
         <span class="info-content-content">{{userinfo.email}}</span>
-        <br>
-        <br>
+        <br />
+        <br />
       </div>
-      <br>
+      <br />
       <div class="info-content-info" style="text-align:center;font-size:0.8em;color:red;">
         <span>
           *注意：邮箱十分重要，一经绑定成功，便不予修改，若要修改，请联系
@@ -119,7 +113,6 @@
     <!--最近登录日志信息-->
     <el-dialog title="最近登录日志" :visible.sync="logsVisible">
       <el-table :data="logs">
-        <el-table-column property="id" label="序号" width="50"></el-table-column>
         <el-table-column property="name" label="姓名" width="100"></el-table-column>
         <el-table-column property="time" label="时间"></el-table-column>
         <el-table-column property="ip" label="登录IP"></el-table-column>
@@ -162,7 +155,8 @@
           <el-input v-model="formOfReviseInfo.class" autocomplete="on" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="邮箱">
-          <el-input v-model="formOfReviseInfo.email" autocomplete="on" :disabled="true"></el-input>
+          <el-input v-model="formOfReviseInfo.email" :disabled="true"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -177,7 +171,12 @@
       :width="suggestWidth"
       :before-close="handleClose"
     >
-      <el-input type="textarea" :rows="6" placeholder="请输入内容，不得小于20字，不得超过200字" v-model="suggestText"></el-input>
+      <el-input
+        type="textarea"
+        :rows="6"
+        placeholder="请输入内容，不得小于20字，不得超过200字"
+        v-model="suggestText"
+      ></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="suggestVisible = false" plain>取 消</el-button>
         <el-button type="primary" @click="submitSuggestion" plain>确 定</el-button>
@@ -186,16 +185,17 @@
 
     <!--头像上传-->
     <!--只能使用jpeg格式-->
-    <input type="file" accept="image/*" @change="handleFile" class="hiddenInput">
+    <input type="file" accept="image/*" @change="handleFile" class="hiddenInput" />
 
     <el-dialog
       title="头像预览/确认"
       :visible.sync="headimgVisible"
-      width="15%"
+      width="30%"
       :before-close="handleClose"
     >
       <div class="head_img_up">
-        <img :src="avatar">
+        <!-- 裁剪图片 -->
+        <vue-cropper ref="cropper" :src="imgSrc" :cropmove="cropImage"></vue-cropper>
       </div>
 
       <span slot="footer" class="dialog-footer">
@@ -203,15 +203,28 @@
         <el-button type="primary" @click="submitHead">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 新增邮箱:针对于没有邮箱的用户 -->
+    <el-dialog title="设置邮箱" :visible="!hasEmail" :width="formLabelWidth">
+      <el-input v-model="newEmail" placeholder="输入你要设置的邮箱"></el-input>
+      <div slot="footer" class="dialog-footer">
+        <el-button >取 消</el-button>
+        <el-button type="primary" @click="setNewEmail()">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import VueCropper from "vue-cropperjs";
+import "cropperjs/dist/cropper.css";
+
 export default {
   data() {
     return {
+      imgSrc: "",
       userinfo: {},
       ipinfo: {},
+      classInfo: {},
       score: 0,
       scoreDetails: [],
       logs: [],
@@ -223,6 +236,9 @@ export default {
       headimgVisible: false,
       suggestVisible: false,
       logsVisible: false,
+      loading: false,
+      newEmail: "",
+      hasEmail:true,
       //需要上传的头像资源
       file: {},
       formOfRevisePwd: {
@@ -241,25 +257,51 @@ export default {
       avatar: ""
     };
   },
+  components: { VueCropper },
   methods: {
+    hasEmailMethod() {
+      if (this.userinfo.email=="") {
+        this.hasEmail = false;
+      } else {
+        this.hasEmail = true;
+      }
+    },
+    async setNewEmail(){
+      if(this.newEmail.length==0||this.newEmail.indexOf("@")==-1){
+        alert("请检查你邮箱地址的输入");
+        return;
+      }
+      //拼装参数
+      let param = {
+        stuNum:this.$cookies.get("userid"),
+        email:this.newEmail
+      }
+      this.loading = true;
+      let temp = await this.$public.updateEmail(param);
+      if(temp!=undefined&&temp.status){
+        this.$message.success("修改成功,请刷新");
+        this.hasEmail = true;
+        this.loading = false;
+      } else this.$message.error(temp.error)
+    },
     //通过id获取用户信息
     async getUserInfoById() {
       let temp = await this.$public.getUserInfoById(this.userid);
-      if(temp.status){
+      if (temp.status) {
         this.userinfo = temp.content;
       }
     },
     //通过id获取用户登录信息
     async getUserIpInfoById() {
       let temp = await this.$public.getUserIpInfoById(this.userid);
-      if(temp.status){
+      if (temp.status) {
         this.ipinfo = temp.content;
       }
     },
     //获取现在的总成绩
     async getUserScoreInfoById() {
       let temp = await this.$public.getUserScoreInfoById(this.userid);
-      if(temp.status){
+      if (temp.status) {
         this.score = temp.content;
       }
     },
@@ -269,7 +311,7 @@ export default {
         id: this.userid,
         token: this.$cookies.get("access-token")
       });
-      if(temp.status){
+      if (temp.status) {
         this.scoreDetails = temp.content;
       }
     },
@@ -279,8 +321,7 @@ export default {
         id: this.userid,
         token: this.$cookies.get("access-token")
       });
-      if(temp.status)
-        this.logs = temp.content.reverse();
+      if (temp.status) this.logs = temp.content.reverse();
     },
     getUserId() {
       //判断cookies是否还存在
@@ -291,6 +332,7 @@ export default {
       //设置基本信息
       this.formOfReviseInfo.name = this.userinfo.name;
       this.formOfReviseInfo.email = this.userinfo.email;
+      this.formOfReviseInfo.class = this.classInfo.name;
     },
     // 打开图片上传
     uploadHeadImg: function() {
@@ -302,9 +344,9 @@ export default {
       let file = $target.files[0];
 
       let size = file.size;
-      //判断文件是否大于5M
-      if (size > 1024 * 1000 * 5) {
-        this.$alert("上传的文件大于5M,请选择小于5M的文件上传", "提示", {
+      //判断文件是否大于2M
+      if (size > 1024 * 1000 * 2) {
+        this.$alert("上传的文件大于2M,请选择小于2M的文件上传", "提示", {
           confirmButtonText: "好的"
         });
         return;
@@ -312,18 +354,34 @@ export default {
       this.file = file;
       var reader = new FileReader();
       reader.onload = data => {
+        //在这里再调用显示预览头像
+        this.headimgVisible = true;
         let res = data.target || data.srcElement;
-        this.avatar = res.result;
+        this.imgSrc = res.result;
       };
       reader.readAsDataURL(file);
-      //在这里再调用显示预览头像
-      this.headimgVisible = true;
+    },
+    cropImage() {
+      this.avatar = this.$refs.cropper.getCroppedCanvas().toDataURL();
+    },
+    dataURLtoFile(dataurl, filename) {
+      var arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
     },
     //提交头像上传的请求
     async submitHead() {
       //获取图片资源
-      let file = this.file;
-      console.log(file);
+      //这里将base64码转成File文件
+      let file = this.dataURLtoFile(this.avatar, "head.jpeg");
+      // console.log(this.file)
+      // console.log(file)
       //创建一个form对象
       let params = new FormData();
       //append 向form表单添加数据
@@ -391,15 +449,14 @@ export default {
     },
     //提交意见
     async submitSuggestion() {
-      if (this.suggestText.length < 200&&this.suggestText.length >20) {
+      if (this.suggestText.length < 200 && this.suggestText.length > 20) {
         let temp = await this.$public.submitSuggestion({
           username: this.userid,
           content: this.suggestText
         });
-        if(temp.status)
-          this.$message({type: "success",message: "感谢你的建议"});
-        else
-          this.$message({type: "error",message: temp.error});
+        if (temp.status)
+          this.$message({ type: "success", message: "感谢你的建议" });
+        else this.$message({ type: "error", message: temp.error });
         this.suggestText = "";
         this.suggestVisible = false;
       } else
@@ -425,17 +482,25 @@ export default {
           this.$router.go(0);
         }
       });
+    },
+    async getClassInfo() {
+      let temp = await this.$public.getClassInfoById(this.userid);
+      if (temp.status) this.classInfo = temp.content;
     }
   },
   created() {
     this.getUserId();
   },
-  mounted() {
-    this.getUserInfoById();
-    this.getUserIpInfoById();
-    this.getUserScoreInfoById();
-    this.getDetailOfScore();
-    this.getAllLogById();
+  async mounted() {
+    this.loading = true;
+    await this.getUserInfoById();
+    await this.getUserIpInfoById();
+    await this.getClassInfo();
+    await this.getUserScoreInfoById();
+    await this.getDetailOfScore();
+    await this.getAllLogById();
+    await this.hasEmailMethod();
+    this.loading = false;
   },
   updated() {
     //更新视图时，加载基本信息
@@ -450,7 +515,6 @@ export default {
   margin: auto;
   margin-top: 40px;
   width: 60%;
-  height: 850px;
 }
 .baseinfo {
   width: 30%;
@@ -540,7 +604,7 @@ export default {
 }
 
 .head_img_up {
-  height: 90px;
+  width: 100%;
 }
 .head_img_up img {
   width: 90px;

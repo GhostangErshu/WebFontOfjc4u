@@ -1,18 +1,16 @@
 <template>
     <div class="detail"  v-title :data-title="data_title">
         <div class="detail-title">
-            <h2>photoshop cs6 破解版</h2>
-            <hr>
+            <h2>{{src.name}}</h2>
         </div>
         <div class="detail-data">
-            <span>下载次数：51</span>
-            <span>贡献者：某某某</span>
-            <span>发布时间：2019-04-25</span>
+            <span><i class=""></i>下载次数：{{src.visitNum}}</span>
+            <span><i class="el-icon-user"></i>贡献者：{{src.contributor}}</span>
+            <span><i class=""></i>发布时间：{{src.time}}</span>
         </div>
-        <div class="detail-content">
-            
-        </div>
-        <div class="detail-content">
+        <div class="detail-content"></div>
+        <div class="detail-button">
+            <el-button @click="download">点击下载</el-button>
         </div>
     </div>
 </template>
@@ -21,8 +19,32 @@
 export default {
     data(){
         return{
-            data_title:"详情"
+            data_title:"资源详情",
+            src:{},
+            id:""
         }
+    },
+    methods:{
+        async getDetailInfo(){
+            let temp = await this.$public.getDetailSrcDataById(this.id);
+            if(temp.status){
+                // console.log(temp.content)
+                this.src = temp.content;
+                this.$el.querySelector(".detail-content").innerHTML = temp.content.describe;
+            }
+        },
+        getSrcId(){
+            // console.log(this.$route.params.pathMatch)
+            this.id = this.$route.params.pathMatch;
+        },
+        download(){
+            this.$public.addVisitNum({id:this.id});
+            window.open(this.src.link);
+        }
+    },
+    mounted(){
+        this.getSrcId();
+        this.getDetailInfo();
     }
 }
 </script>

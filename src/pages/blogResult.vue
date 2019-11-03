@@ -6,7 +6,7 @@
       <hr />
       <div class="pageProperty">
         <span class="author">作者：{{info.author}}</span>
-        <span class="releaseTime">发布时间：{{info.time}}</span>
+        <span class="releaseTime">批改时间：{{info.time}}</span>
         <span class="pageViews">分数：{{info.score}}</span>
       </div>
       <div class="pageContent"></div>
@@ -44,7 +44,7 @@ export default {
       this.info = {
         title:task.title,
         author:temp.name,
-        time:temp.time_submit,
+        time:temp.time_correct,
         score:temp.grade,
         content:temp.content,
         comment:temp.comment
@@ -63,9 +63,9 @@ export default {
       let access = await this.$public.checkTaskid(2,this.msg);
       if(!access)
         this.$router.push("/404")
-    },
+    }
   },
-  mounted(){
+  beforeMount(){
     this.getParm();
     this.getDetailInfo();
   },
@@ -146,54 +146,9 @@ export default {
 .comment span{
     text-decoration: underline;
 }
-img {
-  width: 70%;
+.comment img {
+  width: 30% !important;
   height: auto;
   display: inline-block;
-}
-/* table 样式 */
-table {
-  margin: auto;
-  width: 80%;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-}
-table td,
-table th {
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  padding: 3px 5px;
-}
-table th {
-  border-bottom: 2px solid #ccc;
-  text-align: center;
-}
-blockquote {
-  padding:10px;
-  display: block;
-  border-left: 8px solid #60a9a6;
-  padding: 5px 10px;
-  margin: 10px 0;
-  line-height: 1;
-  font-size: 100%;
-  background-color: #f1f1f1;
-}
-code {
-  padding: 15px;
-  margin: 20px 0;
-  display: inline-block;
-  background-color: #2d2d2d;
-  color: #fff;
-  padding: 10px;
-  font-size: 0.8em;
-  border-radius: 5px;
-}
-pre code {
-  display: block;
-  line-height: 1.1em;
-}
-ul,
-ol {
-  margin: 10px 0 10px 20px;
 }
 </style>

@@ -1,83 +1,89 @@
 <template>
   <div class="contain">
     <div class="content">
-      <div class="ScoreTitle">{{title}}</div>
-      <div class="ScorePanel">
-        <div class="PanelContent">
-          <div class="General">
-            最近任务成绩排行榜
-            <el-select v-model="option" placeholder="请选择任务" size="small" class="select">
-              <el-option
-                v-for="item in tasks"
-                :key="item.value"
-                :label="item.name"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </div>
-          <br />
-          <br />
-          <div class="singleItem" id="title">
-            <span>排名</span>
-            <span>姓名</span>
-            <span>分数</span>
-            <span>班级</span>
-            <span>详情</span>
-          </div>
-          <div v-for="item in totalList" :key="item.id">
-            <div class="singleItem">
-              <span>{{item.ranking}}</span>
-              <span>{{item.name}}</span>
-              <span>{{item.score}}</span>
-              <span>{{item.className}}</span>
-              <span class="detail" @click="toDetail">{{"查看详情"}}</span>
+      <el-row>
+        <el-col :span="24">
+          <div class="ScoreTitle">{{title}}</div>
+        </el-col>
+        <el-col :span="12">
+          <div class="ScorePanel">
+            <div class="PanelContent">
+              <div class="General">
+                最近任务成绩排行榜
+                <el-select v-model="option" placeholder="请选择任务" size="small" class="select">
+                  <el-option
+                    v-for="item in tasks"
+                    :key="item.taskId"
+                    :label="item.title"
+                    :value="item.taskId"
+                  ></el-option>
+                </el-select>
+              </div>
+              <br />
+              <br />
+              <div class="singleItem" id="title">
+                <span>排名</span>
+                <span>学号</span>
+                <span>分数</span>
+                <span>详情</span>
+              </div>
+              <div v-for="item in simpleList" :key="item.id">
+                <div class="singleItem">
+                  <span>{{item.ranking}}</span>
+                  <span>{{item.stuNum}}</span>
+                  <span>{{item.score}}</span>
+                  <span class="detail" @click="toDetail(item)">{{"查看详情"}}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="ScorePanel">
-        <div class="PanelContent">
-          <div class="General">总成绩前十排行榜</div>
-          <div class="item" id="title">
-            <span>排名</span>
-            <span>姓名</span>
-            <span>总分数</span>
-            <span>班级</span>
+        </el-col>
+        <el-col :span="12">
+          <div class="ScorePanel">
+            <div class="PanelContent">
+              <div class="General">总成绩前十排行榜</div>
+              <div class="item" id="title">
+                <span>排名</span>
+                <span>学号</span>
+                <span>姓名</span>
+                <span>总分数</span>
+              </div>
+              <div v-for="item in totalList" :key="item.id">
+                <div v-if="item.ranking==1" class="item">
+                  <span>
+                    <img src="../assets/1.png" />
+                  </span>
+                  <span>{{item.stuNum}}</span>
+                  <span>{{item.name}}</span>
+                  <span>{{item.score}}</span>
+                </div>
+                <div v-if="item.ranking==2" class="item">
+                  <span>
+                    <img src="../assets/2.png" />
+                  </span>
+                  <span>{{item.stuNum}}</span>
+                  <span>{{item.name}}</span>
+                  <span>{{item.score}}</span>
+                </div>
+                <div v-if="item.ranking==3" class="item">
+                  <span>
+                    <img src="../assets/3.png" />
+                  </span>
+                  <span>{{item.stuNum}}</span>
+                  <span>{{item.name}}</span>
+                  <span>{{item.score}}</span>
+                </div>
+                <div v-if="item.ranking>3" class="item">
+                  <span>{{item.ranking}}</span>
+                  <span>{{item.stuNum}}</span>
+                  <span>{{item.name}}</span>
+                  <span>{{item.score}}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div v-for="item in totalList" :key="item.id">
-            <div v-if="item.ranking==1" class="item">
-              <span>
-                <img src="../assets/1.png" />
-              </span>
-              <span>{{item.name}}</span>
-              <span>{{item.score}}</span>
-              <span>{{item.className}}</span>
-            </div>
-            <div v-if="item.ranking==2" class="item">
-              <span>
-                <img src="../assets/2.png" />
-              </span>
-              <span>{{item.name}}</span>
-              <span>{{item.score}}</span>
-              <span>{{item.className}}</span>
-            </div>
-            <div v-if="item.ranking==3" class="item">
-              <span>
-                <img src="../assets/3.png" />
-              </span>
-              <span>{{item.name}}</span>
-              <span>{{item.score}}</span>
-              <span>{{item.className}}</span>
-            </div>
-            <div v-if="item.ranking>3" class="item">
-              <span>{{item.ranking}}</span>
-              <span>{{item.name}}</span>
-              <span>{{item.score}}</span>
-              <span>{{item.className}}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
@@ -87,42 +93,69 @@ export default {
     return {
       title: "JC4U&学长课堂成绩排行榜",
       totalList: [],
-      option:"",
-      tasks:[
-        {
-          value:'01012',
-          name:'类的继承'
-        }
-      ]
+      simpleList: [],
+      option: "",
+      tasks: []
     };
   },
-  methods:{
-    async getTotalTopTen(){
+  methods: {
+    async getTotalTopTen() {
       //获得原始数据
-      let temp = await this.$public.getTotalTopTen();
-      //对数据进行进一步处理
-      let tempArray = new Array(temp.length);
-      for(let i=0;i<temp.length;i++)
-         tempArray[i] = {
-          ranking:i+1,
-          name:temp[i].name,
-          score:temp[i].grade,
-          className:temp[i].temp
+      let temp_0 = await this.$public.getTotalTopTen();
+      if (temp_0.status) {
+        let temp = temp_0.content;
+        //对数据进行进一步处理
+        let tempArray = new Array(temp.length);
+        for (let i = 0; i < temp.length; i++)
+          tempArray[i] = {
+            ranking: i + 1,
+            stuNum: temp[i].stuNum,
+            score: temp[i].grade,
+            name:temp[i].name
+          };
+        //赋值
+        this.totalList = tempArray;
+        console.log(this.totalList)
       }
-      //赋值
-      this.totalList = tempArray;
     },
-    toDetail(){
-      alert("查看详情")
+    async listGradeInfoByTaskId(taskId) {
+      //获得原始数据
+      let temp = await this.$public.listGradeInfoByTaskId(taskId);
+      if (temp.status) {
+        //对数据进行进一步处理
+        let tempArray = new Array(temp.content.length);
+        for (let i = 0; i < temp.content.length; i++)
+          tempArray[i] = {
+            ranking: i + 1,
+            stuNum: temp.content[i].stuNum,
+            score: temp.content[i].grade,
+            taskId: temp.content[i].taskId
+          };
+        this.simpleList = tempArray;
+      }
+    },
+    goResult(e) {},
+    async listSimpleTaskInfo() {
+      //这里的id就是用户id
+      let temp = await this.$public.listSimpleTaskInfo(this.$cookies.get("userid"));
+      if (temp.status) this.tasks = temp.content;
+    },
+    toDetail(e) {
+      // console.log(e)
+      this.$router.push({
+        path: "/detail-homework",
+        query: { stuNum: e.stuNum, taskId: e.taskId }
+      });
     }
   },
-  mounted(){
+  mounted() {
     this.getTotalTopTen();
+    this.listSimpleTaskInfo();
   },
   //监控选择框的值
-  watch:{
-    option(e){
-      console.log(e)
+  watch: {
+    option(e) {
+      this.listGradeInfoByTaskId(e);
     }
   }
 };
@@ -137,7 +170,7 @@ export default {
   margin: auto;
   padding-top: 30px;
   width: 70vw;
-  height: 90vh;
+  min-height: 90vh;
   background-color: rgba(200, 200, 200, 0.4);
   margin: auto;
 }
@@ -151,7 +184,7 @@ export default {
 }
 .ScorePanel {
   width: 30vw;
-  height: 80vh;
+  min-height: 80vh;
   background-color: rgb(150, 150, 150, 0.6);
   margin: 2vh 2.5vw 3vh 2.5vw;
   float: left;
@@ -179,9 +212,9 @@ export default {
   margin: 0;
   display: inline-block;
   width: 20%;
-  overflow:hidden;
+  overflow: hidden;
 }
-.singleItem{
+.singleItem {
   width: 100%;
   height: 50px;
   line-height: 50px;
@@ -193,15 +226,14 @@ export default {
 .singleItem span {
   margin: 0;
   display: inline-block;
-  width: 16%;
-  overflow:hidden;
+  width: 20%;
 }
-.detail{
+.detail {
   transition: all 0.5s;
 }
-.detail:hover{
+.detail:hover {
   font-weight: bold;
-  color: #000;
+  color: #457135;
   cursor: pointer;
 }
 #title {
