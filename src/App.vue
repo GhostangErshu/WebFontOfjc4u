@@ -7,6 +7,7 @@
         <router-link tag="li" to="/download">资源下载</router-link>
         <router-link tag="li" to="/information">通知信息</router-link>
         <router-link tag="li" to="/blog">学长课堂</router-link>
+        <router-link tag="li" to="/score-detail">分数榜</router-link>
         <router-link tag="li" to="/about">关于</router-link>
 
         <!-- 这是一个浮动事件触发的模块 -->

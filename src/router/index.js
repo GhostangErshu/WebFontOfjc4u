@@ -140,7 +140,8 @@ router.beforeEach((to, from, next) => {
       return;
     };
   }
-  if (to.name.indexOf("home") == -1 && to.name.indexOf("login") == -1) {
+  // console.log(to.name)
+  if (to.name.indexOf("home") == -1 && to.name.indexOf("login") == -1 && to.name.indexOf("detailsOfInfo") == -1) {
     if (cookies.isKey("access-token")) {
       let accessToken = cookies.get("access-token");
       axios.post(publicMethod.tokenCheckUrl, qs.stringify({
@@ -153,10 +154,10 @@ router.beforeEach((to, from, next) => {
           //如果token无效
           cookies.remove("access-token");
           cookies.remove("userid");
-          next("login")
+          next("/login")
         }
       }).catch(err => console.log(err))
-    } else next("login")
+    } else next("/login")
   } else {
     next();
   }

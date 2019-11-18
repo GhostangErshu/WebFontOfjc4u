@@ -11,8 +11,8 @@ import qs from "qs"
 //请求的最大时间
 // axios.defaults.timeout = 10000
 
-// const serverLocation = "http://47.106.222.240:7180" 
-const serverLocation = "http://172.16.182.136:7180"
+const serverLocation = "http://47.106.222.240:7180" 
+// const serverLocation = "http://172.16.182.136:7180"
 // const serverLocation = "http://localhost:10086"
 
 const jc4u = {
@@ -20,6 +20,7 @@ const jc4u = {
   host: serverLocation,
   tokenCheckUrl: serverLocation + "/verify/checkToken",
   imageCodeUrl:serverLocation+"/imageCode/getImage",
+  uploadImgUrl: serverLocation + "/file/uploadEnclosure",
   //将get请求的函数进行封装
   async get(requestLocation) {
     let temp;

@@ -6,7 +6,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import VueCookies from 'vue-cookies'
 import crypto from 'crypto'
-import VueParticles from 'vue-particles'  
+import VueParticles from 'vue-particles'
 
 //导入公共js
 import publicMethods from "@/api/index"
@@ -31,10 +31,20 @@ Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueCookies)
 Vue.use(VueParticles)
-  
+
+// 在main.js定义自定义指令 
+Vue.directive('highlight', function (el) {
+  let blocks = el.querySelectorAll('pre code');
+  blocks.forEach((block) => {
+    // hljs.lineNumbersBlock(block);
+  })
+})
+
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App
+  },
   template: '<App/>'
 })

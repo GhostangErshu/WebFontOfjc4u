@@ -7,20 +7,31 @@
       <div class="notice">截止时间：{{taskInfo.deadline}}</div>
       <div class="notice">作业代号：{{msg}}</div>
       <hr />
-      <div id="editor"></div>
+      <!-- <div id="editor"></div> -->
+      <mavon-editor
+        v-model="content"
+        ref="md"
+        @imgAdd="$imgAdd"
+        @change="change"
+        style="height: 600px"
+      />
       <div class="admin">
-        <button class="button" id="submit">提 交</button>
+        <button class="button" id="submit" @click="submit">提 交</button>
         <button class="button" id="back" @click="back">返回</button>
-        <button class="button" id="enclosure" @click.stop="uploadFile">浏览附件</button>
-        <span class="filenameDisplay"></span>
-        <input type="file" accept="image/*" @change="handleFile" class="hiddenInput" />
+        <!-- <button class="button" id="enclosure" @click.stop="uploadFile">浏览附件</button> -->
+        <!-- <span class="filenameDisplay"></span> -->
+        <!-- <input type="file" accept="image/*" @change="handleFile" class="hiddenInput" /> -->
       </div>
     </div>
   </div>
 </template>
 <script>
-import E from "wangeditor";
+// 舍弃富文本方案，使用markdown
+// import E from "wangeditor";
 
+import { mavonEditor } from "mavon-editor";
+import axios from "axios"
+import "mavon-editor/dist/css/index.css";
 export default {
   data() {
     return {
@@ -28,39 +39,70 @@ export default {
       file: {},
       taskInfo: {},
       path: "",
-      userid: ""
+      userid: "",
+      content:"",
+      html:""
     };
+  },
+  components: {
+    mavonEditor
   },
   mounted() {
     this.getParm();
-    this.initEditor();
+    // this.initEditor();
     this.getTaskInfo();
   },
   created() {
     this.getUserId();
   },
   methods: {
-    initEditor() {
-      var editor = new E("#editor");
-      editor.customConfig.uploadImgServer =
-        this.$public.host + "/file/uploadImgForEditor";
-      editor.customConfig.uploadImgParams = {
-        token: this.$cookies.get("access-token")
-      };
-      editor.customConfig.uploadFileName = "file";
-      editor.create();
-      //进行监听
-      let that = this;
-      document.getElementById("submit").addEventListener(
-        "click",
-        function() {
-          // 读取 html
-          let content = editor.txt.html();
-          // console.log(content)
-          that.commitTask(content);
-        },
-        false
-      );
+    // initEditor() {
+    //   var editor = new E("#editor");
+    //   editor.customConfig.uploadImgServer =
+    //     this.$public.host + "/file/uploadImgForEditor";
+    //   editor.customConfig.uploadImgParams = {
+    //     token: this.$cookies.get("access-token")
+    //   };
+    //   editor.customConfig.uploadFileName = "file";
+    //   editor.create();
+    //   //进行监听
+    //   let that = this;
+    //   document.getElementById("submit").addEventListener(
+    //     "click",
+    //     function() {
+    //       // 读取 html
+    //       let content = editor.txt.html();
+    //       // console.log(content)
+    //       that.commitTask(content);
+    //     },
+    //     false
+    //   );
+    // },
+    // 将图片上传到服务器，返回地址替换到md中
+    async $imgAdd(pos, $file) {
+      var formdata = new FormData();
+      console.log(formdata.append("file", $file));
+      // 这里没有服务器供大家尝试，可将下面上传接口替换为你自己的服务器接口
+      // console.log(formdata);
+      // 上传图片
+      axios({
+        url: this.$public.uploadImgUrl,
+        method: "post",
+        data: formdata,
+        headers: { "Content-Type": "multipart/form-data" }
+      }).then(res => {
+        if (res==undefined||!res.data.status) alert("上传图片失败");
+        else this.$refs.md.$img2Url(pos, res.data.content);
+      });
+    },
+    change(value, render) {
+      // render 为 markdown 解析后的结果
+      this.html = render;
+    },
+    async submit() {
+      let result;
+      result = this.html;
+      await this.commitTask(result)
     },
     async commitTask(content) {
       let result = await this.$public.commitTask(
@@ -115,49 +157,49 @@ export default {
       }
     },
     // 打开文件上传
-    uploadFile: function() {
-      this.$el.querySelector(".hiddenInput").click();
-    },
-    handleFile: async function(e) {
-      let $target = e.target || e.srcElement;
-      let file = $target.files[0];
+    // uploadFile: function() {
+    //   this.$el.querySelector(".hiddenInput").click();
+    // },
+    // handleFile: async function(e) {
+    //   let $target = e.target || e.srcElement;
+    //   let file = $target.files[0];
 
-      let size = file.size;
-      //判断文件是否大于
-      if (size > 1024 * 1024 * 5) {
-        this.$alert("上传的文件于5M,请选择小于5M的文件上传", "提示", {
-          confirmButtonText: "好的"
-        }).catch(re => console.log(re));
-        return;
-      }
-      this.file = file;
-      //判断是不是Java文件
-      if (file.name.indexOf("java") == -1) {
-        this.$alert("请上传Java源文件", "提示", {
-          confirmButtonText: "好的"
-        }).catch(re => console.log(re));
-        return;
-      }
-      //创建一个form对象
-      let params = new FormData();
-      //append 向form表单添加数据
-      params.append("file", file);
-      // params.append("token", this.$cookies.get("access-token"));
-      //添加请求头  通过form添加的图片和文件的格式必须是multipart/form-data
-      let config = {
-        headers: { "Content-Type": "multipart/form-data" }
-      };
-      //请求后台接口，上传文件，接受后台返回的图片路径
-      this.path = await this.$public.uploadJavaFile(params, config);
-      //进行判断输出响应结果
-      if (this.path != "" && this.path != undefined)
-        this.$el.querySelector(".filenameDisplay").innerHTML =
-          "<i class='el-icon-finished'>已上传：" + file.name;
-      else
-        this.$alert("附件上传失败", "提示", {
-          confirmButtonText: "好的"
-        }).catch(re => console.log(re));
-    }
+    //   let size = file.size;
+    //   //判断文件是否大于
+    //   if (size > 1024 * 1024 * 5) {
+    //     this.$alert("上传的文件于5M,请选择小于5M的文件上传", "提示", {
+    //       confirmButtonText: "好的"
+    //     }).catch(re => console.log(re));
+    //     return;
+    //   }
+    //   this.file = file;
+    //   //判断是不是Java文件
+    //   if (file.name.indexOf("java") == -1) {
+    //     this.$alert("请上传Java源文件", "提示", {
+    //       confirmButtonText: "好的"
+    //     }).catch(re => console.log(re));
+    //     return;
+    //   }
+    //   //创建一个form对象
+    //   let params = new FormData();
+    //   //append 向form表单添加数据
+    //   params.append("file", file);
+    //   // params.append("token", this.$cookies.get("access-token"));
+    //   //添加请求头  通过form添加的图片和文件的格式必须是multipart/form-data
+    //   let config = {
+    //     headers: { "Content-Type": "multipart/form-data" }
+    //   };
+    //   //请求后台接口，上传文件，接受后台返回的图片路径
+    //   this.path = await this.$public.uploadJavaFile(params, config);
+    //   //进行判断输出响应结果
+    //   if (this.path != "" && this.path != undefined)
+    //     this.$el.querySelector(".filenameDisplay").innerHTML =
+    //       "<i class='el-icon-finished'>已上传：" + file.name;
+    //   else
+    //     this.$alert("附件上传失败", "提示", {
+    //       confirmButtonText: "好的"
+    //     }).catch(re => console.log(re));
+    // }
   }
 };
 </script>
@@ -167,14 +209,15 @@ export default {
   background-image: url("../assets/bg.jpg");
   background-size: 100% auto;
   min-height: 90vh;
-  padding-top: 50px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 .hiddenInput {
   display: none;
 }
 #blogEditor {
   text-align: left;
-  width: 50vw;
+  width: 80vw;
   padding: 30px 0;
   margin: auto;
   position: relative;

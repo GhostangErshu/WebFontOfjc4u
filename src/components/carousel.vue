@@ -1,10 +1,10 @@
 <template>
   <div class="contain">
-    <el-carousel :interval="10000" type height="700px" width="100vw">
+    <el-carousel :interval="10000" type height="800px" width="100vw">
       <el-carousel-item v-for="item in list" :key="item.id" class="el-carousel__item">
         <!-- <h3>{{item.title}}</!-->
         <!-- <p>{{item.content}}</p> -->
-        <div class="nav-image" :style="{backgroundImage:'url(' + item.picLink + ')'}"></div>
+        <div class="nav-image" :style="{backgroundImage:'url(' + item.picLink + ')'}" @click="linkTo(item.content)"></div>
         <!-- <img class="nav-image" :src="item.picLink" alt="加载中..."> -->
         <!-- <el-image style="width: 100%; height: auto" :src="item.picLink" fit="contain"></el-image> -->
       </el-carousel-item>
@@ -35,6 +35,11 @@ export default {
         this.list = info.content;
       }
       //进行设置
+    },
+    linkTo(e){
+      if(e==undefined || e=="none")
+        return;
+      this.$router.push(e)
     }
   }
 };

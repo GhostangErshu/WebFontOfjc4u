@@ -14,7 +14,7 @@
         <span class="releaseTime">发布时间：{{info.time}}</span>
         <span class="pageViews">分数：{{info.score}}</span>
       </div>
-      <div class="pageContent"></div>
+      <div class="pageContent" v-html="info.content" v-highlight></div>
       <div class="comment">
         评语：
         <span>{{info.comment}}</span>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import "github-markdown-css";
 export default {
   data() {
     return {
@@ -61,7 +62,6 @@ export default {
           comment: temp.comment
         };
         //手动对dom进行操作
-        this.$el.querySelector(".pageContent").innerHTML = temp.content;
       } catch (e) {this.go404()}
     },
     getUserId() {

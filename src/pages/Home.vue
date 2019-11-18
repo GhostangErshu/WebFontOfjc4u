@@ -55,7 +55,7 @@ export default {
   width: 99vw;
   display: inline-block;
   margin-top: 10px;
-  height: 80vh;
+  height: 90vh;
   overflow: hidden;
 }
 

@@ -6,7 +6,7 @@
           <div class="ScoreTitle">{{title}}</div>
         </el-col>
         <el-col :span="12">
-          <div class="ScorePanel">
+          <div class="ScorePanel" v-loading="normalLoading">
             <div class="PanelContent">
               <div class="General">
                 最近任务成绩排行榜
@@ -20,9 +20,9 @@
                 </el-select>
               </div>
               <br />
-              <br />
               <div class="singleItem" id="title">
                 <span>排名</span>
+                <span>姓名</span>
                 <span>学号</span>
                 <span>分数</span>
                 <span>详情</span>
@@ -30,6 +30,7 @@
               <div v-for="item in simpleList" :key="item.id">
                 <div class="singleItem">
                   <span>{{item.ranking}}</span>
+                  <span>{{item.name}}</span>
                   <span>{{item.stuNum}}</span>
                   <span>{{item.score}}</span>
                   <span class="detail" @click="toDetail(item)">{{"查看详情"}}</span>
@@ -39,7 +40,7 @@
           </div>
         </el-col>
         <el-col :span="12">
-          <div class="ScorePanel">
+          <div class="ScorePanel" v-loading="topTenLoading">
             <div class="PanelContent">
               <div class="General">总成绩前十排行榜</div>
               <div class="item" id="title">
@@ -95,11 +96,14 @@ export default {
       totalList: [],
       simpleList: [],
       option: "",
-      tasks: []
+      tasks: [],
+      topTenLoading:false,
+      normalLoading:false
     };
   },
   methods: {
     async getTotalTopTen() {
+      this.topTenLoading = true;
       //获得原始数据
       let temp_0 = await this.$public.getTotalTopTen();
       if (temp_0.status) {
@@ -115,10 +119,11 @@ export default {
           };
         //赋值
         this.totalList = tempArray;
-        console.log(this.totalList)
-      }
+      } 
+      this.topTenLoading = false;
     },
     async listGradeInfoByTaskId(taskId) {
+      this.normalLoading = true;
       //获得原始数据
       let temp = await this.$public.listGradeInfoByTaskId(taskId);
       if (temp.status) {
@@ -129,10 +134,12 @@ export default {
             ranking: i + 1,
             stuNum: temp.content[i].stuNum,
             score: temp.content[i].grade,
-            taskId: temp.content[i].taskId
+            taskId: temp.content[i].taskId,
+            name:temp.content[i].name
           };
         this.simpleList = tempArray;
       }
+      this.normalLoading = false;
     },
     goResult(e) {},
     async listSimpleTaskInfo() {
@@ -200,8 +207,8 @@ export default {
 }
 .item {
   width: 100%;
-  height: 50px;
-  line-height: 50px;
+  height: 60px;
+  line-height: 60px;
   text-align: center;
   padding-left: 5px;
   background-color: #ccc;
@@ -221,12 +228,12 @@ export default {
   text-align: center;
   background-color: #ccc;
   color: #222;
-  font-size: 0.9em;
+  font-size: 0.8em;
 }
 .singleItem span {
   margin: 0;
   display: inline-block;
-  width: 20%;
+  width: 15%;
 }
 .detail {
   transition: all 0.5s;

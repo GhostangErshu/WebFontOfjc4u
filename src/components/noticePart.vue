@@ -91,7 +91,7 @@ export default {
 }
 
 .home-comtent-infomation li a {
-  transition: all 0.4s;
+  transition: all 0.3s;
 }
 .home-comtent-infomation-title a {
   text-decoration: none;
@@ -99,11 +99,13 @@ export default {
 }
 .home-comtent-infomation-title a:hover {
   color: #444;
+  font-weight: bold;
 }
+/* 直接关闭时间的显示 */
 .home-comtent-infomation-time {
-  float: right;
-  margin-left: 50px;
-  font-size: 0.9em;
+  /* float: right; */
+  display: none;
+  text-align: right;
 }
 .more {
   font-size: 0.8em;
